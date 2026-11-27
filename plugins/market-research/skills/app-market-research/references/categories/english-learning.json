@@ -1,0 +1,58 @@
+{
+ "name": "English learning",
+ "genres": ["EDUCATION"],
+ "keywords": {
+  "en": ["learn english", "english speaking", "english speaking practice", "speak english", "english pronunciation", "american accent", "english grammar", "english vocabulary", "learn english for beginners", "english conversation", "english listening", "ielts", "toefl", "toeic", "esl", "english course", "english tutor", "ai english tutor", "practice english with ai", "business english", "english for kids", "english learning app", "english words", "phrasal verbs", "english idioms", "spoken english"],
+  "vi": ["học tiếng anh", "luyện nói tiếng anh", "phát âm tiếng anh", "từ vựng tiếng anh", "luyện thi ielts", "giao tiếp tiếng anh"],
+  "th": ["เรียนภาษาอังกฤษ", "ฝึกพูดภาษาอังกฤษ", "คำศัพท์ภาษาอังกฤษ"],
+  "id": ["belajar bahasa inggris", "kursus bahasa inggris", "latihan speaking"]
+ },
+ "include": "english|ielts|toefl|toeic|\\besl\\b|pronunciation|accent|grammar|vocabulary|speak|tiếng anh|ภาษาอังกฤษ|bahasa inggris",
+ "exclude": "translator|translate|keyboard|bible|quran|typing|spanish|french|german|japanese|korean|chinese|mandarin|italian|arabic|hindi|portuguese|russian|turkish|sign language|dictionary",
+ "features": {
+  "Pronunciation scoring": {"label": "Chấm phát âm", "pattern": "pronunciation|accent|speech (?:analysis|recognition|assessment)|phát âm"},
+  "AI conversation / tutor": {"label": "Hội thoại với AI", "pattern": "(?-i:\\bAI\\b).{0,40}(?:tutor|teacher|conversation|chat|partner|coach)|talk to (?:an )?(?-i:AI)|chat with (?:an )?(?-i:AI)|role-?play"},
+  "Live human tutors": {"label": "Gia sư thật", "pattern": "(?:native|live|real|certified|professional|human) (?:english )?(?:teachers?|tutors?)|1-on-1|one-on-one|private lessons?"},
+  "Grammar lessons": {"label": "Ngữ pháp", "pattern": "grammar"},
+  "Vocabulary & flashcards": {"label": "Từ vựng / flashcard", "pattern": "vocabulary|flashcard|spaced repetition|word lists?"},
+  "Listening practice": {"label": "Luyện nghe", "pattern": "listening|podcast|audio ?(?:stories|lessons|books?)"},
+  "Video lessons": {"label": "Bài học video", "pattern": "video lessons?|videos|movies?|films?|tv shows?"},
+  "Reading practice": {"label": "Luyện đọc", "pattern": "reading|stories|articles"},
+  "Writing feedback": {"label": "Chữa bài viết", "pattern": "writing (?:practice|feedback|correction)|essays?|grammar check"},
+  "Placement / level test": {"label": "Kiểm tra trình độ", "pattern": "placement test|level test|assess your level|\\bcefr\\b|\\b[abc][12]\\b"},
+  "Exam prep (IELTS/TOEFL/TOEIC)": {"label": "Luyện thi IELTS/TOEFL", "pattern": "ielts|toefl|toeic|\\bpte\\b|cambridge|duolingo english test"},
+  "Business / career English": {"label": "Tiếng Anh công việc", "pattern": "business english|job interviews?|workplace|career|professional english|meetings"},
+  "Kids mode": {"label": "Cho trẻ em", "pattern": "\\bkids?\\b|children|toddlers?"},
+  "Gamification": {"label": "Game hóa / streak", "pattern": "streak|\\bxp\\b|leaderboard|leagues?|gamif|badges|rewards|games?\\b"},
+  "Personalized plan": {"label": "Lộ trình cá nhân hóa", "pattern": "personali[sz]ed|tailored|adaptive|custom (?:plan|path|learning)|study plan"},
+  "Progress tracking": {"label": "Theo dõi tiến độ", "pattern": "track (?:your )?progress|progress reports?|statistics"},
+  "Offline mode": {"label": "Học offline", "pattern": "offline|without (?:an )?internet|download lessons"},
+  "Native-language support": {"label": "Giải thích bằng tiếng mẹ đẻ", "pattern": "your (?:native|own|mother) (?:language|tongue)|bilingual|in \\d+ languages|\\d+\\+? languages"},
+  "Dictionary / translation": {"label": "Từ điển / dịch", "pattern": "dictionary|translat"},
+  "Certificate": {"label": "Chứng chỉ", "pattern": "certificates?|certification"},
+  "Community / social": {"label": "Cộng đồng", "pattern": "community|language exchange|friends|chat with (?:people|learners|native speakers)"},
+  "Short daily lessons": {"label": "Bài học ngắn mỗi ngày", "pattern": "\\d+ ?(?:-|to )?\\d* minutes? (?:a|per) day|minutes a day|bite-sized|short lessons|daily lessons"},
+  "Free tier": {"label": "Có bản miễn phí", "pattern": "\\bfree\\b"}
+ },
+ "verify_by_hand": ["Pronunciation scoring", "AI conversation / tutor", "Live human tutors", "Writing feedback", "Exam prep (IELTS/TOEFL/TOEIC)", "Offline mode", "Native-language support", "Kids mode"],
+ "themes": {
+  "en": {
+   "n_complaint": 8,
+   "themes": {
+    "Quảng cáo nhiều": "\\bads?\\b|advert|commercial",
+    "Paywall / bắt trả phí": "premium|subscription|subscribe|paywall|\\bpay\\b|paid|price|expensive|free trial|not free|locked",
+    "Bị trừ tiền / khó hủy": "charged|refund|cancel|auto.?renew|billing|scam|took my money",
+    "Lỗi / crash / chậm": "bug|crash|glitch|freez|\\blag|slow|error|doesn.?t work|not working|won.?t (?:load|open)|keeps closing",
+    "Nhận diện giọng nói sai": "(?:speech|voice|pronunciation|microphone|\\bmic\\b).{0,50}(?:wrong|incorrect|inaccurat|doesn.?t|can.?t|not (?:work|recogni|detect|hear))|doesn.?t (?:hear|recogni[sz]e|understand) (?:me|my)|recogni[sz]",
+    "Nội dung lặp / quá dễ": "repetitive|repeat|too easy|boring|same (?:questions|lessons|words|sentences)|too basic",
+    "Mất tiến độ / streak": "lost (?:my )?(?:progress|streak|data)|progress (?:was )?(?:reset|gone|deleted)|reset my|streak (?:lost|gone|reset)",
+    "Muốn thêm tính năng": "please add|i wish|would be (?:nice|great|better)|should (?:add|have)|suggest|feature request",
+    "Dễ dùng / đơn giản": "easy|simple|user.?friendly|intuitive|convenient",
+    "Tiến bộ thật": "improv|fluen|confiden|learn(?:ed|ing|t)? (?:a lot|so much)|better (?:at|in) english|help(?:ed|s) me",
+    "Luyện nói / phát âm": "speak|speaking|pronunciation|accent|conversation",
+    "Vui / game hóa": "\\bfun\\b|game|streak|addict|enjoy|motivat",
+    "Giáo viên / AI tutor": "teacher|tutor|(?-i:\\bAI\\b)|chatbot"
+   }
+  }
+ }
+}

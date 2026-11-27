@@ -20,6 +20,8 @@
 - **Global apps inflate per-review ratios.** If you ever convert reviews to downloads, cap installs-per-review at a percentile of local apps — but the user preferred counts over estimates, so only do this when asked and label it as an estimate.
 - **Snippets with newlines** hide the matched word; analyze.py now prints the match in `<<…>>` on one line.
 - **Bank and wallet super-apps slip in** when their listing mentions budgeting (K PLUS in Thailand had 70% of all reviews). Drop them with `analyze.py --exclude-apps` and say so; but keep bank-built *standalone* money apps (MAKE by KBank, Kept by Krungsri) — those are real competitors and a key finding.
+- **Capped samples in big markets.** A top US app gets thousands of reviews a month, so 40 pages may cover only weeks. The 30-day count is then extrapolated from the sample's span and older windows are `null`; don't read a missing month as a drop.
+- **Generalist apps distort a niche.** In the US, Duolingo's English reviews come mostly from English speakers learning other languages; keep it out of an English-learning category unless the market is one where it is mainly used to learn English.
 - **Keyword coverage** decides what's in the list. Check that known leaders are present; add `--extra-apps` for the focal app and anything the user names.
 - **Cloud sandboxes** often block the App Store, AppTweak and Similarweb. Say what was blocked; don't fill gaps from memory.
 

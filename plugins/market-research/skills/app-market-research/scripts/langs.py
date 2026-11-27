@@ -119,7 +119,47 @@ TH = {
     },
 }
 
-PROFILES = {"id": ID, "vi": VI, "th": TH}
+# ---------- English ----------
+# Reviews from an English-language Play feed still contain Spanish, Portuguese, etc.
+_EN_WORDS = set("""the and is it this app to i a of for my you very good great but not have in with so love
+use like it's its was are be can just would really easy helpful learn learning english best please""".split())
+_ES_PT_WORDS = set("""que de la el muy bueno buena aplicación aplicacion es una para con por pero mi lo
+excelente gracias aprender inglés ingles não muito bom ótimo aplicativo""".split())
+_NON_LATIN = re.compile(r"[\u0400-\u04FF\u0600-\u06FF\u0900-\u097F\u0E00-\u0E7F\u3040-\u30FF\u4E00-\u9FFF\uAC00-\uD7AF]")
+
+
+def _is_english(text):
+    t = text or ""
+    if _NON_LATIN.search(t):
+        return False
+    w = re.findall(r"[a-záéíóúãõçñ']+", t.lower())
+    en, es = sum(x in _EN_WORDS for x in w), sum(x in _ES_PT_WORDS for x in w)
+    return en >= 1 and en > es
+
+
+EN = {
+    "play_lang": "en",
+    "is_local": _is_english,
+    "contrast": r"\b(but|however|although|though|except|only (?:problem|issue|thing))\b",
+    "wish": r"please add|i wish|would be (?:nice|great|better)|should (?:add|have)|suggest|feature request|hope (?:you|they)",
+    "n_complaint": 7,
+    "themes": {
+        "Quảng cáo nhiều": r"\bads?\b|advert|commercial",
+        "Giá / bắt trả premium": r"premium|subscription|subscribe|paywall|\bpay\b|paid|price|expensive|refund|charged|free trial",
+        "Mất dữ liệu / sao lưu": r"lost (?:my )?(?:progress|streak|data)|progress (?:was )?(?:reset|gone|deleted)|reset my",
+        "Lỗi / crash / chậm": r"bug|crash|glitch|freez|\blag|slow|error|doesn.?t work|not working|won.?t (?:load|open)|keeps closing",
+        "Đăng nhập / sync": r"log ?in|sign ?in|account|\bsync",
+        "Sau cập nhật bị hỏng": r"update|new version",
+        "Muốn thêm tính năng": r"please add|i wish|would be (?:nice|great)|should (?:add|have)|suggest|feature request",
+        "Dễ dùng / đơn giản": r"easy|simple|user.?friendly|intuitive|convenient",
+        "Giúp đạt mục tiêu": r"improv|help(?:ed|s|ful)|learn(?:ed|ing)? a lot",
+        "Giao diện đẹp": r"design|interface|beautiful|cute|colou?rful|\bui\b",
+        "Báo cáo / thống kê": r"statistic|report|track(?:ing)? (?:my )?progress|chart",
+        "Tự động / AI": r"(?-i:\bAI\b)|chatbot|speech recognition|voice",
+    },
+}
+
+PROFILES = {"id": ID, "vi": VI, "th": TH, "en": EN}
 
 
 def get(code):

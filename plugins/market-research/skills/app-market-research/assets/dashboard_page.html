@@ -7,8 +7,11 @@
     {{CATEGORY}}         e.g. "quản lý chi tiêu"    {{CRAWL_DATE}} e.g. "27/11/2026"
     {{WINDOW}}           e.g. "28/10–27/11/2026"    {{FOCAL}} focal app short name, e.g. "Money Lover"
     {{LOCAL_DEV}}        e.g. "Công ty Việt Nam"    {{FOREIGN_DEV}} e.g. "Công ty nước ngoài"
+    {{GAPS_TITLE}}       e.g. "Cơ hội cho Money Lover ở Việt Nam" or "Khoảng trống cho một app mới"
+    {{FIT_LABEL}}        matrix x-axis, e.g. "Money Lover sẵn sàng" or "đối thủ còn bỏ trống"
+    {{HAS_LABEL}}        gap-table column, e.g. "Money Lover đã có" or "Ai đang làm tốt nhất"
     WRITE:... comments   blocks of findings you write from the data (keep numbers out of prose, or mark them)
-  Remove the whole <section id="focal"> if there is no focal app.
+  No focal app: delete <div id="focal-position"> (verdict + comparison) and keep the gap matrix, table, roadmap and risks.
   Datasets expected: apps, features, sentiment, themes, quotes, gaps (see SKILL.md for columns).
 -->
 <style>
@@ -100,7 +103,7 @@
 
   <section class="amr-section" id="trend">
     <h2 class="amr-h2">Xu hướng 6 tháng của 8 app dẫn đầu</h2>
-    <p class="amr-sub">Mỗi điểm là số review {{LANG_ADJ}} trong một khoảng 30 ngày. Phần trăm so sánh khoảng gần nhất với khoảng đầu tiên.</p>
+    <p class="amr-sub">Mỗi điểm là số review {{LANG_ADJ}} trong một khoảng 30 ngày. Phần trăm so sánh khoảng gần nhất với khoảng đầu tiên có dữ liệu. Với app quá nhiều review, mẫu thu thập không phủ hết 6 tháng nên chỉ vẽ những tháng có đủ dữ liệu.</p>
     <div class="amr-multiples" data-draw="multiples" data-source="apps trend"></div>
   </section>
 
@@ -151,7 +154,8 @@
   </section>
 
   <section class="amr-section" id="focal">
-    <h2 class="amr-h2">Cơ hội cho {{FOCAL}} ở {{MARKET}}</h2>
+    <h2 class="amr-h2">{{GAPS_TITLE}}</h2>
+    <div id="focal-position" class="amr-section">
     <div class="amr-verdict" id="focal-verdict">
       <span class="amr-verdict-label">Đánh giá</span>
       <span class="amr-verdict-value"><!-- WRITE:FOCAL_VERDICT one short line --></span>
@@ -170,8 +174,9 @@
         <div><span class="amr-label">Số tính năng</span><div class="amr-chart" data-draw="cmp-features" data-source="featcount" style="min-height: 150px"></div></div>
       </div>
     </div>
-    <div class="amr-section" id="focal-matrix">
-      <h3 class="amr-h3">Ma trận khoảng trống: thị trường cần × {{FOCAL}} sẵn sàng</h3>
+    </div>
+    <div class="amr-section" id="focal-matrix" data-fit="{{FIT_LABEL}}">
+      <h3 class="amr-h3">Ma trận khoảng trống: thị trường cần × {{FIT_LABEL}}</h3>
       <p class="amr-sub">Ô viền đậm là phần nên làm ngay. Màu chấm là công sức. Điểm là đánh giá của Claude dựa trên review và bản đồ tính năng, không phải số đo.</p>
       <div class="amr-legend" aria-hidden="true"><span><i class="amr-swatch" data-effort="1"></i>Công sức thấp</span><span><i class="amr-swatch" data-effort="2"></i>Trung bình</span><span><i class="amr-swatch" data-effort="3"></i>Cao</span></div>
       <div class="amr-matrix" data-draw="matrix" data-source="gaps"></div>
@@ -183,7 +188,7 @@
           <thead><tr>
             <th data-field="gap">Khoảng trống</th><th data-field="review_mentions">Số review nhắc tới</th>
             <th data-field="evidence">Bằng chứng</th><th data-field="competitors">Đối thủ</th>
-            <th data-field="focal_has">{{FOCAL}} đã có</th><th data-field="action">Việc cần làm</th>
+            <th data-field="focal_has">{{HAS_LABEL}}</th><th data-field="action">Việc cần làm</th>
           </tr></thead>
           <tbody data-draw="gap-rows"></tbody>
         </table>
@@ -286,7 +291,7 @@ dash.calc('trend', {
   inputs: ['apps'],
   fn: (apps) => {
     const cols = Object.keys(apps[0] || {}).filter((c) => c.startsWith('reviews_to_')).sort();
-    return apps.map((a) => { const first = +a[cols[0]], last = +a[cols[cols.length - 1]];
+    return apps.map((a) => { const known = cols.filter((c) => a[c] != null); const first = known.length ? +a[known[0]] : 0, last = known.length ? +a[known[known.length - 1]] : 0;
       return { app: a.app, first, last, change_pct: first > 0 ? Math.round((100 * (last - first)) / first) : null }; });
   },
 });
@@ -366,7 +371,8 @@ dash.draw('multiples', (el) => {
   });
   el.querySelectorAll('.amr-mini').forEach((card) => {
     const a = card._amr;
-    const pts = cols.map((c) => ({ d: new Date(c.slice(11) + 'T00:00:00Z'), v: +a[c] }));
+    const pts = cols.filter((c) => a[c] != null).map((c) => ({ d: new Date(c.slice(11) + 'T00:00:00Z'), v: +a[c] }));
+    if (pts.length < 2) return;
     const W = Math.max(120, card.clientWidth - 24), H = 70, m = { t: 8, r: 8, b: 16, l: 8 };
     const x = d3.scaleUtc().domain(d3.extent(pts, (p) => p.d)).range([m.l, W - m.r]);
     const y = d3.scaleLinear().domain([0, d3.max(pts, (p) => p.v) || 1]).nice().range([H - m.b, m.t]);
@@ -507,7 +513,7 @@ dash.draw('matrix', (el) => {
   const s = dash.data('gaps'); AMR.settle(el, s); if (AMR.failed(el, s)) return;
   const lv = ['Thấp', 'Trung bình', 'Cao'], cells = [];
   const ax = (t, c) => { const d = document.createElement('div'); d.className = 'amr-axis' + (c ? ' ' + c : ''); d.textContent = t; return d; };
-  cells.push(ax('Thị trường cần ↑ / sẵn sàng →')); lv.forEach((l) => cells.push(ax(l)));
+  cells.push(ax('Thị trường cần ↑ / ' + (document.querySelector('#focal-matrix')?.dataset.fit || 'mức phù hợp') + ' →')); lv.forEach((l) => cells.push(ax(l)));
   [3, 2, 1].forEach((dem) => {
     cells.push(ax(lv[dem - 1], 'amr-ylab'));
     [1, 2, 3].forEach((fit) => {

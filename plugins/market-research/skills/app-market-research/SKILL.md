@@ -14,7 +14,7 @@ The output is a dashboard (the claude.ai "Data" Artifact type) with these sectio
 4. Feature heatmap: ~25 features × 20 apps (yes / partial / not mentioned).
 5. Scatter: number of features vs. local reviews (does feature count buy users?).
 6. Reviews: % positive/negative, complaint and praise themes, per-app 1-2★ share, quotes.
-7. Focal app (optional): position vs leaders, gap matrix (demand × fit, colored by effort), gap table, 12-week Gantt, risks.
+7. Gaps: with a focal app, its position vs leaders plus a gap matrix (demand × fit, colored by effort), gap table, 12-week Gantt and risks; without one, the same matrix/table/roadmap framed as "gaps for a new app" (fit = how open the gap is).
 
 ## Why the metrics are what they are (tell the user this, briefly)
 
@@ -37,14 +37,14 @@ Scripts live in `scripts/` (relative to this file). They need `pip install googl
 - Report language (default Vietnamese) and shape: dashboard (KPI-ish) or visual analysis (one finding, top to bottom). If the Artifact view context shows a `form`, build that shape.
 
 ### 2. Config
-- **Category**: use `references/categories/<name>.json` if one fits, else write one following `references/category-config.md` (keywords per language, include/exclude regexes, features with labels and patterns, which features to verify by hand).
-- **Language**: `scripts/langs.py` has Indonesian (`id`) and Vietnamese (`vi`). For a new market add a profile (marker words that separate it from close neighbours, contrast words like "but", wish words, theme patterns). Test `is_local` on 4-5 sample sentences, including a near-neighbour language, before crawling.
+- **Category**: `personal-finance.json` and `english-learning.json` exist. Use one if it fits, else write one following `references/category-config.md` (keywords per language, include/exclude regexes, features with labels and patterns, which features to verify by hand).
+- **Language**: `scripts/langs.py` has Indonesian (`id`), Vietnamese (`vi`), Thai (`th`) and English (`en`). For a new market add a profile (marker words that separate it from close neighbours, contrast words like "but", wish words, theme patterns). Test `is_local` on 4-5 sample sentences, including a near-neighbour language, before crawling.
 
 ### 3. Crawl (10-25 min; run in the background)
 ```bash
 python scripts/crawl.py --country vn --lang vi --category references/categories/personal-finance.json --out <DIR> --extra-apps com.bookmark.money
 ```
-Writes `apps.json`, `reviews.json`, `crawl_meta.json`. Sanity-check: does the list contain the apps the user or the press would name? If a known leader is missing, add it with `--extra-apps` or widen keywords, and say what was excluded and why (e.g. an investing app that also tracks spending).
+Writes `apps.json`, `reviews.json`, `crawl_meta.json`. For big markets (US, India) raise `--max-pages` (e.g. 40); apps whose sample still doesn't reach 6 months get `null` for the windows it doesn't cover, and the page draws only covered months. Sanity-check: does the list contain the apps the user or the press would name? If a known leader is missing, add it with `--extra-apps` or widen keywords, and say what was excluded and why (e.g. an investing app that also tracks spending).
 
 ### 4. Analyse
 ```bash
@@ -63,7 +63,7 @@ Then write `quotes.json` and `gaps.json` yourself (schemas in `references/data-s
 
 ### 6. Build the dashboard
 1. `Artifact` `action: "quickstart"`, `intent: "other"` → create from the Data type with a short title and `auto_open: "after_first_write"`. Read its `design-defaults.md` and `one-writer.md` once.
-2. Copy `assets/dashboard_page.html`, replace every `{{PLACEHOLDER}}` and `<!-- WRITE:… -->` block (findings, verdict, summary, risks), delete the top instruction comment, delete `<section id="focal">` if there's no focal app. Keep numbers out of hand-written prose unless they are marked elements.
+2. Copy `assets/dashboard_page.html`, replace every `{{PLACEHOLDER}}` and `<!-- WRITE:… -->` block (findings, verdict, summary, risks), delete the top instruction comment. Without a focal app, delete `<div id="focal-position">` and keep the gap matrix, table, roadmap and risks with `{{GAPS_TITLE}}` = "Khoảng trống cho một app mới". Keep numbers out of hand-written prose unless they are marked elements.
 3. Upload each JSON with `Artifact` publish `asset: true` (one JSON per call), then one `ArtifactData` batch: `dash/meta` (`lang`), `datasets/<id>` for apps, features, sentiment, themes, quotes, gaps (`kind: "file"`, `format: "json"`, `updated`, `fixed: true`), and `files/index.html` as `{text}`.
 4. Read `data/users/me/check`, `runs`, and `page` (save `page` to a file and grep the text). Fix anything `failed` or any mark that disagrees. Syntax-check the page's script with `node --check` before uploading.
 
@@ -73,4 +73,5 @@ Lead with the answer: the 3-5 things the data says, with numbers. Then: what's o
 ## Extending
 - New category: add `references/categories/<name>.json`.
 - New market language: add a profile to `scripts/langs.py`.
+- Category-specific review themes (e.g. "speech recognition is wrong" for language apps): add `themes.<lang>` to the category config; it replaces the language profile's generic themes.
 - Real downloads over time: `scripts/snapshot_installs.py` (run daily via a scheduled task; deltas of `realInstalls`).

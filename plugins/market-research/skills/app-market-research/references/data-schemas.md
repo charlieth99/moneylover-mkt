@@ -3,7 +3,7 @@
 Ids must match exactly; the page template reads these columns.
 
 ## apps (export_dashboard.py)
-`rank, app, play_title, developer, package, built_locally ("Yes"/"No"), local_reviews_30d, global_installs, rating, ads ("Yes"/"No"), price_range, last_updated, is_focal ("Yes"/"No"), reviews_to_<YYYY-MM-DD>` (one per 30-day window, oldest first) `, <feature name>` ("yes"/"partial"/"no", one column per feature in the category config).
+`rank, app, play_title, developer, package, built_locally ("Yes"/"No"), local_reviews_30d, global_installs, rating, ads ("Yes"/"No"), price_range, last_updated, is_focal ("Yes"/"No"), reviews_to_<YYYY-MM-DD>` (one per 30-day window, oldest first; `null` when the review sample didn't reach that window) `, <feature name>` ("yes"/"partial"/"no", one column per feature in the category config).
 
 ## features (export_dashboard.py)
 `feature` (column name in apps), `label` (display label).
@@ -21,7 +21,7 @@ Ids must match exactly; the page template reads these columns.
 ```
 12-16 quotes: ~8 complaints across apps and themes, ~4 wishes, ~3 praise. Exact text from reviews.json (truncate ~300 chars), no names.
 
-## gaps (you write; only with a focal app)
+## gaps (you write; with a focal app, or as "gaps for a new app")
 ```json
 {"id": "g1", "gap": "full name", "short": "≤22 chars", "demand": 1-3, "fit": 1-3, "effort": 1-3,
  "review_mentions": 46 or null, "evidence": "…", "competitors": "…", "focal_has": "…", "action": "…",

@@ -27,6 +27,9 @@ def main():
     apps = {k: v for k, v in apps.items() if k not in drop}
     revs = [r for r in json.load(open(f"{a.dir}/reviews.json")) if r["appId"] not in drop]
     meta["excluded_apps"] = sorted(drop)
+    cat_th = cat.get("themes", {}).get(a.lang)
+    if cat_th:  # a category can bring its own themes for a language (e.g. "speech recognition is wrong")
+        prof = dict(prof, themes=cat_th["themes"], n_complaint=cat_th["n_complaint"])
     contrast, wish = re.compile(prof["contrast"], re.I), re.compile(prof["wish"], re.I)
     theme_names = list(prof["themes"])
     by = C.defaultdict(list)
@@ -43,7 +46,10 @@ def main():
             span = (now - dt.datetime.strptime(min(r["at"] for r in rs), "%Y-%m-%d")).days
             if span < 30:
                 n30 = round(len(rs) * 30 / max(span, 1))
-        win = [sum((e - dt.timedelta(days=30)).strftime("%Y-%m-%d") <= r["at"] < e.strftime("%Y-%m-%d") for r in rs) for e in ends]
+        oldest = x.get("review_sample_oldest") if x.get("review_sample_capped") else None
+        # a capped sample doesn't reach back far enough: windows it doesn't fully cover are unknown, not zero
+        win = [None if oldest and (e - dt.timedelta(days=30)).strftime("%Y-%m-%d") < oldest else
+               sum((e - dt.timedelta(days=30)).strftime("%Y-%m-%d") <= r["at"] < e.strftime("%Y-%m-%d") for r in rs) for e in ends]
         rows.append({"appId": aid, "reviews_30d": n30, "windows": win, "reviews_period": len(rs),
                      "capped": bool(x.get("review_sample_capped"))})
     rows.sort(key=lambda r: (-r["reviews_30d"], -r["reviews_period"]))

@@ -10,7 +10,8 @@
   "features": {
     "Feature name used as column": {"label": "Label shown on the page (report language)", "pattern": "regex over EN + local listing"}
   },
-  "verify_by_hand": ["features that differentiate apps and need reading the snippet"]
+  "verify_by_hand": ["features that differentiate apps and need reading the snippet"],
+  "themes": {"en": {"n_complaint": 8, "themes": {"Theme label (complaints first)": "regex", "...": "..."}}}
 }
 ```
 
@@ -21,3 +22,4 @@ Tips
 - 20-25 features. Put table-stakes features first and differentiators (AI, auto-import, sharing, web) in `verify_by_hand`.
 - Feature patterns: avoid short generic words; use `(?-i:...)` for case-sensitive acronyms.
 - See `personal-finance.json` for a full example in English, Indonesian and Vietnamese.
+- `themes` is optional: per language, a category can replace the profile's generic themes with its own (complaints first, `n_complaint` of them). See `english-learning.json`.
