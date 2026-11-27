@@ -1,0 +1,14 @@
+{
+  "name": "moneylover-mkt",
+  "owner": {"name": "Money Lover Marketing"},
+  "metadata": {"description": "Claude skills for the Money Lover marketing team", "version": "1.0.0"},
+  "plugins": [
+    {
+      "name": "market-research",
+      "source": "./plugins/market-research",
+      "description": "App market research from Google Play: top apps by local review activity, trends, feature matrix, review praise/complaints, gaps and a 90-day plan, as an interactive dashboard.",
+      "version": "1.0.0",
+      "category": "marketing"
+    }
+  ]
+}

@@ -1,0 +1,204 @@
+{
+ "name": "Personal finance / expense tracker",
+ "genres": [
+  "FINANCE",
+  "BUSINESS",
+  "PRODUCTIVITY",
+  "TOOLS",
+  "LIFESTYLE"
+ ],
+ "keywords": {
+  "en": [
+   "money manager",
+   "expense tracker",
+   "budget planner",
+   "budget app",
+   "spending tracker",
+   "money tracker",
+   "personal finance",
+   "expense manager",
+   "budgeting",
+   "daily expense",
+   "cash book",
+   "savings goal",
+   "family budget",
+   "income expense",
+   "ai expense tracker",
+   "split bill"
+  ],
+  "id": [
+   "aplikasi keuangan",
+   "catatan keuangan",
+   "catatan keuangan harian",
+   "pencatat keuangan",
+   "manajemen keuangan",
+   "pengelola keuangan",
+   "pengatur keuangan",
+   "keuangan pribadi",
+   "pencatat pengeluaran",
+   "catatan pengeluaran",
+   "anggaran bulanan",
+   "budget harian",
+   "buku kas",
+   "target menabung",
+   "catatan hutang",
+   "money lover"
+  ],
+  "vi": [
+   "quản lý chi tiêu",
+   "quản lý chi tiêu cá nhân",
+   "quản lý tài chính cá nhân",
+   "sổ thu chi",
+   "ghi chép chi tiêu",
+   "thu chi cá nhân",
+   "sổ chi tiêu",
+   "theo dõi chi tiêu",
+   "chi tiêu gia đình",
+   "lập ngân sách",
+   "tiết kiệm tiền",
+   "mục tiêu tiết kiệm",
+   "quản lý tiền",
+   "sổ nợ",
+   "quỹ chung",
+   "chia tiền nhóm",
+   "money lover",
+   "misa moneykeeper"
+  ],
+  "th": [
+   "แอพจดรายรับรายจ่าย",
+   "บันทึกรายรับรายจ่าย",
+   "รายรับรายจ่าย",
+   "จดรายจ่าย",
+   "บัญชีรายรับรายจ่าย",
+   "บันทึกค่าใช้จ่าย",
+   "แอพบันทึกค่าใช้จ่าย",
+   "จดเงิน",
+   "วางแผนการเงิน",
+   "จัดการเงิน",
+   "การเงินส่วนบุคคล",
+   "ออมเงิน",
+   "แอพเก็บเงิน",
+   "งบประมาณรายเดือน",
+   "บันทึกหนี้",
+   "แชร์ค่าใช้จ่าย",
+   "สแกนสลิป",
+   "money lover"
+  ]
+ },
+ "include": "budget|expense|spending|money manager|money tracker|money lover|personal finance|cash ?book|savings|kakeibo|income|monefy|spendee|cashew|split|keuangan|pengeluaran|anggaran|catat|dompet|tabungan|menabung|hutang|chi tiêu|thu chi|ngân sách|tiết kiệm|quản lý tiền|tài chính cá nhân|sổ (?:nợ|quỹ|chi|thu)|ghi chép|moneykeeper|รายรับ|รายจ่าย|ค่าใช้จ่าย|การเงิน|ออมเงิน|เก็บเงิน|งบประมาณ|จดเงิน|หนี้",
+ "exclude": "pinjam|kredit|loan|paylater|\\bbank\\b|banking|crypto|kripto|bitcoin|saham|stock|forex|trading|reksadana|invest|e-?wallet|qris|kasir|\\bpos\\b|point of sale|invoice|pajak|\\btax\\b|asuransi|insurance|calculator|kalkulator|inventory|payroll|vay|tín dụng|ngân hàng|chứng khoán|bảo hiểm|ví điện tử|momo|zalopay|vnpay|bán hàng|thuế|máy tính|chấm công|ธนาคาร|สินเชื่อ|เงินกู้|กู้เงิน|หุ้น|คริปโต|ประกัน|ภาษี|truemoney|ทรูมันนี่|เป๋าตัง|ขายของ|ร้านค้า|คิดเงิน",
+ "features": {
+  "Budget limits": {
+   "label": "Hạn mức ngân sách",
+   "pattern": "budget|anggaran|ngân sách|hạn mức|งบประมาณ"
+  },
+  "Multiple accounts / wallets": {
+   "label": "Nhiều tài khoản / ví",
+   "pattern": "multiple (?:accounts|wallets)|wallets|beberapa (?:akun|dompet|rekening)|nhiều (?:ví|tài khoản)|các (?:ví|tài khoản)|หลายบัญชี|หลายกระเป๋า|กระเป๋าเงิน"
+  },
+  "Recurring transactions": {
+   "label": "Giao dịch định kỳ",
+   "pattern": "recurring|repeat|berulang|rutin|định kỳ|lặp lại|รายการประจำ|ทำซ้ำ|เกิดซ้ำ"
+  },
+  "Bill / payment reminders": {
+   "label": "Nhắc hóa đơn",
+   "pattern": "\\bbill|reminder|pengingat|tagihan|jatuh tempo|nhắc nhở|đến hạn|แจ้งเตือน|เตือนความจำ|บิล"
+  },
+  "Savings goals": {
+   "label": "Mục tiêu tiết kiệm",
+   "pattern": "saving|goal|target menabung|tabungan|celengan|mục tiêu|heo đất|ออมเงิน|เก็บเงิน|เป้าหมาย"
+  },
+  "Debt / loan tracking": {
+   "label": "Theo dõi nợ",
+   "pattern": "\\bdebt|\\bloan|hutang|utang|piutang|\\bnợ|cho vay|หนี้|ยืมเงิน|ให้ยืม"
+  },
+  "Charts & reports": {
+   "label": "Biểu đồ & báo cáo",
+   "pattern": "chart|graph|report|statistic|grafik|laporan|báo cáo|biểu đồ|thống kê|กราฟ|รายงาน|สถิติ"
+  },
+  "Calendar view": {
+   "label": "Xem theo lịch",
+   "pattern": "calendar|kalender|\\blịch\\b|ปฏิทิน"
+  },
+  "Multi-currency": {
+   "label": "Nhiều loại tiền",
+   "pattern": "multi[- ]?currenc|currencies|mata uang|ngoại tệ|tỷ giá|หลายสกุลเงิน|สกุลเงิน|อัตราแลกเปลี่ยน"
+  },
+  "Export (CSV / Excel / PDF)": {
+   "label": "Xuất CSV / Excel / PDF",
+   "pattern": "\\bcsv\\b|excel|pdf|export|ekspor|xuất|ส่งออก"
+  },
+  "Cloud backup": {
+   "label": "Sao lưu cloud",
+   "pattern": "google drive|dropbox|backup|cloud|cadangan|sao lưu|đám mây|สำรองข้อมูล|คลาวด์"
+  },
+  "Multi-device sync": {
+   "label": "Sync nhiều máy",
+   "pattern": "\\bsync|sinkron|đồng bộ|multiple devices|nhiều thiết bị|ซิงค์|หลายอุปกรณ์"
+  },
+  "Shared / family budget": {
+   "label": "Chia sẻ gia đình",
+   "pattern": "shar(?:e|ed|ing) (?:budget|account|wallet|with)|family|keluarga|pasangan|gia đình|vợ chồng|chia sẻ|แชร์บัญชี|ครอบครัว|คู่รัก|ใช้ร่วมกัน"
+  },
+  "Split bill": {
+   "label": "Chia bill",
+   "pattern": "split|chia tiền|chia hóa đơn|หารค่า|หารบิล|แชร์ค่าใช้จ่าย"
+  },
+  "Bank / e-wallet auto import": {
+   "label": "Tự lấy từ bank / ví",
+   "pattern": "bank sync|connect (?:your )?bank|automatic bank|notification listener|e-?wallet|liên kết ngân hàng|kết nối ngân hàng|biến động số dư|เชื่อมต่อธนาคาร|เชื่อมบัญชีธนาคาร|ดึงข้อมูลจากธนาคาร|อ่านการแจ้งเตือน|อ่าน SMS"
+  },
+  "Receipt scan": {
+   "label": "Scan hóa đơn",
+   "pattern": "receipt|scan|ocr|struk|quét|สแกน|ใบเสร็จ|สลิป"
+  },
+  "AI / chat input": {
+   "label": "AI / nhập bằng chat",
+   "pattern": "(?-i:\\bAI\\b)|artificial intelligence|gpt|chatbot|trí tuệ nhân tạo|trợ lý (?:ảo|tài chính)|tin nhắn chat|ปัญญาประดิษฐ์|แชทบอท|ผู้ช่วย AI"
+  },
+  "Voice input": {
+   "label": "Nhập bằng giọng nói",
+   "pattern": "voice|suara|giọng nói|ด้วยเสียง|สั่งงานด้วยเสียง|พูด"
+  },
+  "Home-screen widget": {
+   "label": "Widget màn hình",
+   "pattern": "widget|วิดเจ็ต"
+  },
+  "Passcode / fingerprint lock": {
+   "label": "Khóa mã / vân tay",
+   "pattern": "passcode|password|fingerprint|face id|biometric|sidik jari|mật khẩu|vân tay|รหัสผ่าน|ลายนิ้วมือ|สแกนใบหน้า"
+  },
+  "Dark mode / themes": {
+   "label": "Dark mode / theme",
+   "pattern": "dark mode|dark theme|mode gelap|chế độ tối|themes?|tema|โหมดมืด|ธีม"
+  },
+  "Investment / net worth": {
+   "label": "Đầu tư / tài sản ròng",
+   "pattern": "investment|investasi|net worth|đầu tư|tài sản|ลงทุน|สินทรัพย์"
+  },
+  "Credit card tracking": {
+   "label": "Thẻ tín dụng",
+   "pattern": "credit card|kartu kredit|thẻ tín dụng|บัตรเครดิต"
+  },
+  "Web / desktop version": {
+   "label": "Bản web / máy tính",
+   "pattern": "web ?app|ứng dụng web|phiên bản web|trên web|desktop|\\bpc\\b|komputer|เวอร์ชันเว็บ|ใช้งานบนเว็บ|คอมพิวเตอร์"
+  },
+  "Works offline / no login": {
+   "label": "Offline / không cần đăng nhập",
+   "pattern": "offline|no (?:login|registration|account)|tanpa (?:login|daftar|internet)|không cần (?:đăng nhập|internet|tài khoản)|ออฟไลน์|ไม่ต้องล็อกอิน|ไม่ต้องสมัคร"
+  }
+ },
+ "verify_by_hand": [
+  "Bank / e-wallet auto import",
+  "Receipt scan",
+  "AI / chat input",
+  "Voice input",
+  "Shared / family budget",
+  "Multi-device sync",
+  "Web / desktop version",
+  "Bill / payment reminders",
+  "Works offline / no login",
+  "Multiple accounts / wallets"
+ ]
+}

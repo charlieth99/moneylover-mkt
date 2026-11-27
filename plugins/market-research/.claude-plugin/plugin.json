@@ -1,0 +1,7 @@
+{
+  "name": "market-research",
+  "description": "App market research from Google Play for any country and app category, delivered as an interactive dashboard.",
+  "version": "1.0.0",
+  "author": {"name": "Money Lover Marketing"},
+  "keywords": ["market research", "google play", "competitor analysis", "app reviews", "dashboard"]
+}

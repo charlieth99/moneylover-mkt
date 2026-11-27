@@ -1,0 +1,564 @@
+<meta name="dash-one-writer">
+<meta name="dash-form" content="freeform">
+<!--
+  App market research page (Visual analysis shape). Placeholders to replace before upload:
+    {{TITLE}}            page title, e.g. "Thị trường app quản lý chi tiêu ở Việt Nam"
+    {{MARKET}}           e.g. "Việt Nam"            {{LANG_ADJ}} e.g. "tiếng Việt"
+    {{CATEGORY}}         e.g. "quản lý chi tiêu"    {{CRAWL_DATE}} e.g. "27/11/2026"
+    {{WINDOW}}           e.g. "28/10–27/11/2026"    {{FOCAL}} focal app short name, e.g. "Money Lover"
+    {{LOCAL_DEV}}        e.g. "Công ty Việt Nam"    {{FOREIGN_DEV}} e.g. "Công ty nước ngoài"
+    WRITE:... comments   blocks of findings you write from the data (keep numbers out of prose, or mark them)
+  Remove the whole <section id="focal"> if there is no focal app.
+  Datasets expected: apps, features, sentiment, themes, quotes, gaps (see SKILL.md for columns).
+-->
+<style>
+.amr { display: grid; gap: var(--cds-gap-xl); font-family: var(--font-anthropic-sans); color: var(--color-fg); }
+.amr-head { display: grid; gap: var(--cds-gap-sm); max-width: 72ch; }
+.amr-title { font-family: var(--font-anthropic-serif); font-weight: 400; font-size: var(--cds-font-size-title); margin: 0; text-wrap: balance; }
+.amr-lede { font-size: var(--cds-font-size-body); margin: 0; line-height: 1.55; max-width: 80ch; }
+.amr-meta { font-size: var(--cds-font-size-caption); color: var(--color-fg-muted); margin: 0; }
+.amr-section { display: grid; gap: var(--cds-gap-sm); min-width: 0; }
+.amr-h2 { font-size: var(--cds-font-size-heading); font-weight: var(--cds-font-weight-medium); margin: 0; text-wrap: balance; }
+.amr-h3 { font-size: var(--cds-font-size-body); font-weight: var(--cds-font-weight-medium); margin: 0; }
+.amr-sub { font-size: var(--cds-font-size-caption); color: var(--color-fg-muted); margin: 0; max-width: 80ch; line-height: 1.5; }
+.amr-chart { position: relative; min-height: 220px; min-width: 0; }
+.amr-chart svg { display: block; overflow: visible; }
+.amr-chart text { fill: var(--cds-text-secondary); font-size: var(--cds-font-size-caption); font-family: var(--font-anthropic-sans); }
+.amr-chart .amr-strong { fill: var(--color-fg); }
+.amr-chart .domain, .amr-chart .tick line { stroke: var(--cds-chart-axis); }
+.amr-chart .amr-grid line { stroke: var(--cds-chart-grid); }
+.amr-scroll { overflow-x: auto; }
+.amr-legend { display: flex; flex-wrap: wrap; gap: var(--cds-gap-md); font-size: var(--cds-font-size-caption); color: var(--color-fg-muted); align-items: center; }
+.amr-legend span { display: inline-flex; align-items: center; gap: 6px; }
+.amr-swatch { width: 12px; height: 12px; border-radius: 3px; display: inline-block; }
+.amr-sw-a { background: var(--amr-c0); }
+.amr-sw-b { background: var(--amr-c1); }
+.amr-sw-p { background: var(--amr-c0); opacity: .38; }
+.amr-sw-n { border: 1px solid var(--color-border-line); }
+.amr-sw-m { background: var(--cds-chart-muted); }
+.amr-tip { position: absolute; pointer-events: none; background: var(--cds-surface-popover); border: 1px solid var(--cds-border); box-shadow: var(--cds-shadow-popover); border-radius: var(--cds-radius); padding: var(--cds-pad-sm) var(--cds-pad-md); font-size: var(--cds-font-size-caption); color: var(--color-fg); max-width: 260px; z-index: 2; line-height: 1.45; }
+.amr-tip .amr-tip-muted { color: var(--cds-text-secondary); }
+.amr-multiples { display: grid; grid-template-columns: repeat(auto-fill, minmax(200px, 1fr)); gap: var(--cds-gap-md); min-height: 200px; }
+.amr-mini { background: var(--color-panel); border: 1px solid var(--color-border-line); border-radius: var(--cds-radius); padding: var(--cds-pad-md); display: grid; gap: 2px; position: relative; min-width: 0; }
+.amr-mini-name { font-size: var(--cds-font-size-caption); font-weight: var(--cds-font-weight-medium); white-space: nowrap; overflow: hidden; text-overflow: ellipsis; }
+.amr-mini-row { display: flex; justify-content: space-between; align-items: baseline; gap: var(--cds-gap-sm); font-variant-numeric: tabular-nums; }
+.amr-mini-val { font-family: var(--font-anthropic-serif); font-size: var(--cds-font-size-heading); }
+.amr-up { color: var(--color-ok); font-size: var(--cds-font-size-caption); }
+.amr-down { color: var(--color-bad); font-size: var(--cds-font-size-caption); }
+.amr-flat { color: var(--color-fg-muted); font-size: var(--cds-font-size-caption); }
+.amr-mini text { fill: var(--cds-text-secondary); font-size: 10px; }
+.amr-error { font-size: var(--cds-font-size-caption); color: var(--color-bad); margin: 0; }
+.amr-two { display: grid; grid-template-columns: repeat(auto-fit, minmax(300px, 1fr)); gap: var(--cds-gap-lg); }
+.amr-two > div, .amr-three > div { min-width: 0; display: grid; gap: var(--cds-gap-xs); align-content: start; }
+.amr-three { display: grid; grid-template-columns: repeat(auto-fit, minmax(240px, 1fr)); gap: var(--cds-gap-lg); }
+.amr-label { font-size: var(--cds-font-size-caption); color: var(--color-fg-muted); }
+.amr-findings, .amr-risks { margin: 0; padding-left: 1.2em; display: grid; gap: var(--cds-gap-sm); max-width: 80ch; line-height: 1.55; }
+.amr-quotes { display: grid; grid-template-columns: repeat(auto-fill, minmax(260px, 1fr)); gap: var(--cds-gap-md); }
+.amr-quote { margin: 0; background: var(--color-panel); border: 1px solid var(--color-border-line); border-radius: var(--cds-radius); padding: var(--cds-pad-md); display: grid; gap: var(--cds-gap-xs); align-content: start; min-width: 0; }
+.amr-quote-head { display: flex; justify-content: space-between; gap: var(--cds-gap-sm); font-size: var(--cds-font-size-caption); color: var(--color-fg-muted); }
+.amr-quote-app { font-weight: var(--cds-font-weight-medium); color: var(--color-fg); }
+.amr-quote-main { margin: 0; font-size: var(--cds-font-size-body); line-height: 1.5; }
+.amr-quote-orig { margin: 0; font-size: var(--cds-font-size-caption); color: var(--color-fg-muted); font-style: italic; line-height: 1.45; overflow-wrap: anywhere; }
+.amr-verdict { background: var(--color-panel); border: 1px solid var(--color-border-line); border-radius: var(--cds-radius); padding: var(--cds-pad-lg); display: grid; gap: var(--cds-gap-xs); max-width: 80ch; }
+.amr-verdict-label { font-size: var(--cds-font-size-caption); color: var(--color-fg-muted); text-transform: uppercase; letter-spacing: .06em; }
+.amr-verdict-value { font-family: var(--font-anthropic-serif); font-size: var(--cds-font-size-title); font-weight: 400; }
+.amr-matrix { display: grid; grid-template-columns: auto repeat(3, minmax(0, 1fr)); gap: 4px; font-size: var(--cds-font-size-caption); min-height: 300px; }
+.amr-cell { background: var(--color-panel); border: 1px solid var(--color-border-line); border-radius: var(--cds-radius); padding: var(--cds-pad-sm); display: flex; flex-wrap: wrap; gap: 6px; align-content: flex-start; min-height: 84px; min-width: 0; }
+.amr-hot { border-color: var(--amr-c0); border-width: 2px; }
+.amr-axis { color: var(--color-fg-muted); display: flex; align-items: center; justify-content: center; text-align: center; padding: 4px; }
+.amr-ylab { writing-mode: vertical-rl; transform: rotate(180deg); }
+.amr-chip { display: inline-flex; align-items: center; gap: 6px; padding: 4px 8px; border-radius: 999px; border: 1px solid var(--color-border-line); background: var(--color-bg); max-width: 100%; }
+.amr-chip i { width: 8px; height: 8px; border-radius: 50%; flex: none; }
+.amr-table-wrap { overflow-x: auto; }
+.amr-table { border-collapse: collapse; width: 100%; min-width: 720px; font-size: var(--cds-font-size-caption); }
+.amr-table th, .amr-table td { text-align: left; vertical-align: top; padding: 8px 10px; border-bottom: 1px solid var(--color-border-line); line-height: 1.45; }
+.amr-table th { color: var(--color-fg-muted); font-weight: var(--cds-font-weight-medium); }
+.amr-notes { font-size: var(--cds-font-size-caption); color: var(--color-fg-muted); line-height: 1.55; max-width: 80ch; }
+.amr-notes summary { cursor: pointer; color: var(--color-fg); }
+.amr-notes ul { padding-left: 1.2em; margin: var(--cds-gap-sm) 0 0; display: grid; gap: 4px; }
+</style>
+
+<div class="amr" lang="vi">
+  <header class="amr-head" id="overview">
+    <h1 class="amr-title">{{TITLE}}</h1>
+    <p class="amr-lede" data-read lang="vi">
+      <b data-draw="leader-name" data-source="totals" data-field="leader_app" data-row="0" class="dash-skeleton">—</b> chiếm
+      <b data-draw="leader-share" data-source="totals" data-field="leader_share_pct" data-row="0" class="dash-skeleton">—</b> tổng số review {{LANG_ADJ}} của top
+      <b data-draw="n-apps" data-source="totals" data-field="apps" data-row="0" class="dash-skeleton">—</b> app {{CATEGORY}} ở {{MARKET}}, gấp
+      <b data-draw="leader-ratio" data-source="totals" data-field="ratio_vs_second" data-row="0" class="dash-skeleton">—</b> lần app đứng thứ 2. Chỉ
+      <b data-draw="local-count" data-source="totals" data-field="local_count" data-row="0" class="dash-skeleton">—</b> app được xác định là của công ty trong nước.
+    </p>
+    <p class="amr-meta">Google Play {{MARKET}} · xếp theo số review {{LANG_ADJ}} trong 30 ngày ({{WINDOW}}) · thu thập {{CRAWL_DATE}}</p>
+  </header>
+
+  <section class="amr-section" id="ranking">
+    <h2 class="amr-h2">Số review {{LANG_ADJ}} trong 30 ngày</h2>
+    <p class="amr-sub">Review do người dùng {{MARKET}} viết, đếm theo ngôn ngữ. Đây là thước đo người đang dùng app, không phải số download. Thứ tự giữa các app thì đáng tin.</p>
+    <div class="amr-legend" aria-hidden="true"><span><i class="amr-swatch amr-sw-a"></i>{{LOCAL_DEV}}</span><span><i class="amr-swatch amr-sw-b"></i>{{FOREIGN_DEV}}</span></div>
+    <div class="amr-chart" data-draw="bars" data-source="apps" style="min-height: 560px"></div>
+  </section>
+
+  <section class="amr-section" id="trend">
+    <h2 class="amr-h2">Xu hướng 6 tháng của 8 app dẫn đầu</h2>
+    <p class="amr-sub">Mỗi điểm là số review {{LANG_ADJ}} trong một khoảng 30 ngày. Phần trăm so sánh khoảng gần nhất với khoảng đầu tiên.</p>
+    <div class="amr-multiples" data-draw="multiples" data-source="apps trend"></div>
+  </section>
+
+  <section class="amr-section" id="features">
+    <h2 class="amr-h2">Bản đồ tính năng</h2>
+    <p class="amr-sub">Tính năng phổ biến ở bên trái, hiếm ở bên phải. Lấy từ mô tả của từng app trên Google Play: ô trống là mô tả không nhắc tới, app vẫn có thể có tính năng đó.</p>
+    <div class="amr-legend" aria-hidden="true"><span><i class="amr-swatch amr-sw-a"></i>Có</span><span><i class="amr-swatch amr-sw-p"></i>Một phần / chỉ bản trả phí</span><span><i class="amr-swatch amr-sw-n"></i>Không nhắc tới</span></div>
+    <div class="amr-scroll"><div class="amr-chart" data-draw="heatmap" data-source="apps features coverage" style="min-height: 640px"></div></div>
+  </section>
+
+  <section class="amr-section" id="scatter">
+    <h2 class="amr-h2">Nhiều tính năng có giúp có nhiều người dùng không?</h2>
+    <p class="amr-sub">Mỗi chấm là một app: trục ngang là số tính năng (tính cả một phần), trục dọc là số review {{LANG_ADJ}} trong 30 ngày (thang log).</p>
+    <div class="amr-legend" aria-hidden="true"><span><i class="amr-swatch amr-sw-a"></i>{{LOCAL_DEV}}</span><span><i class="amr-swatch amr-sw-b"></i>{{FOREIGN_DEV}}</span></div>
+    <div class="amr-chart" data-draw="scatter" data-source="featcount" style="min-height: 380px"></div>
+  </section>
+
+  <section class="amr-section" id="reviews">
+    <h2 class="amr-h2">Người dùng khen và chê gì</h2>
+    <p class="amr-lede" data-read lang="vi">Trong giai đoạn đo, các app này nhận
+      <b data-draw="rv-total" data-source="review_totals" data-field="reviews" data-row="0" class="dash-skeleton">—</b> review {{LANG_ADJ}}:
+      <b data-draw="rv-pos" data-source="review_totals" data-field="positive_pct" data-row="0" class="dash-skeleton">—</b> là 4–5 sao và
+      <b data-draw="rv-neg" data-source="review_totals" data-field="negative_pct" data-row="0" class="dash-skeleton">—</b> là 1–2 sao. Phần lớn lời chê nằm trong review 1–3 sao, và trong review 4–5 sao có chữ "nhưng".</p>
+    <ul class="amr-findings" data-read lang="vi">
+      <!-- WRITE:REVIEW_FINDINGS 3-5 <li> with a bold lead-in each, from review_samples.txt -->
+    </ul>
+    <div class="amr-two">
+      <div id="complaints">
+        <h3 class="amr-h3">Lời chê: số review nhắc tới từng vấn đề</h3>
+        <p class="amr-sub">Chỉ tính trong review 1–3 sao, và review 4–5 sao có từ "nhưng"</p>
+        <div class="amr-chart" data-draw="complaint-bars" data-source="themes" style="min-height: 240px"></div>
+      </div>
+      <div id="praise">
+        <h3 class="amr-h3">Lời khen: số review 4–5 sao nhắc tới từng điểm</h3>
+        <p class="amr-sub">Một review có thể nhắc nhiều chủ đề</p>
+        <div class="amr-chart" data-draw="praise-bars" data-source="themes" style="min-height: 200px"></div>
+      </div>
+    </div>
+    <div class="amr-section" id="neg-share">
+      <h3 class="amr-h3">Tỷ lệ review 1–2 sao của từng app</h3>
+      <p class="amr-sub">Rê chuột để xem điểm trung bình, vấn đề bị chê nhiều nhất, tỷ lệ dev trả lời review xấu. App có tỷ lệ review rất ngắn hoặc trùng lặp cao thường đang chỉ mời người hài lòng đánh giá.</p>
+      <div class="amr-chart" data-draw="neg-bars" data-source="sentiment" style="min-height: 560px"></div>
+    </div>
+    <div class="amr-section" id="quotes">
+      <h3 class="amr-h3">Người dùng nói gì</h3>
+      <div class="amr-quotes" data-draw="quotes" data-source="quotes"></div>
+    </div>
+  </section>
+
+  <section class="amr-section" id="focal">
+    <h2 class="amr-h2">Cơ hội cho {{FOCAL}} ở {{MARKET}}</h2>
+    <div class="amr-verdict" id="focal-verdict">
+      <span class="amr-verdict-label">Đánh giá</span>
+      <span class="amr-verdict-value"><!-- WRITE:FOCAL_VERDICT one short line --></span>
+      <p class="amr-lede" data-read lang="vi">{{FOCAL}} có
+        <b data-draw="f-installs" data-source="focal_position" data-field="global_installs" data-row="0" class="dash-skeleton">—</b> lượt cài toàn cầu và
+        <b data-draw="f-rev" data-source="focal_position" data-field="local_reviews_30d" data-row="0" class="dash-skeleton">—</b> review {{LANG_ADJ}} trong 30 ngày, xếp hạng
+        <b data-draw="f-rank" data-source="focal_position" data-field="rank" data-row="0" class="dash-skeleton">—</b>/<b data-draw="f-of" data-source="focal_position" data-field="of" data-row="0" class="dash-skeleton">—</b>.
+        <!-- WRITE:FOCAL_SUMMARY 2-3 sentences, no unmarked numbers --></p>
+    </div>
+    <div class="amr-section" id="focal-compare">
+      <h3 class="amr-h3">{{FOCAL}} so với các app dẫn đầu</h3>
+      <div class="amr-legend" aria-hidden="true"><span><i class="amr-swatch amr-sw-a"></i>{{FOCAL}}</span><span><i class="amr-swatch amr-sw-m"></i>App khác</span></div>
+      <div class="amr-three">
+        <div><span class="amr-label">Lượt cài toàn cầu</span><div class="amr-chart" data-draw="cmp-installs" data-source="apps" style="min-height: 150px"></div></div>
+        <div><span class="amr-label">Review {{LANG_ADJ}} · 30 ngày</span><div class="amr-chart" data-draw="cmp-reviews" data-source="apps" style="min-height: 150px"></div></div>
+        <div><span class="amr-label">Số tính năng</span><div class="amr-chart" data-draw="cmp-features" data-source="featcount" style="min-height: 150px"></div></div>
+      </div>
+    </div>
+    <div class="amr-section" id="focal-matrix">
+      <h3 class="amr-h3">Ma trận khoảng trống: thị trường cần × {{FOCAL}} sẵn sàng</h3>
+      <p class="amr-sub">Ô viền đậm là phần nên làm ngay. Màu chấm là công sức. Điểm là đánh giá của Claude dựa trên review và bản đồ tính năng, không phải số đo.</p>
+      <div class="amr-legend" aria-hidden="true"><span><i class="amr-swatch" data-effort="1"></i>Công sức thấp</span><span><i class="amr-swatch" data-effort="2"></i>Trung bình</span><span><i class="amr-swatch" data-effort="3"></i>Cao</span></div>
+      <div class="amr-matrix" data-draw="matrix" data-source="gaps"></div>
+    </div>
+    <div class="amr-section" id="focal-gaps">
+      <h3 class="amr-h3">Chi tiết từng khoảng trống</h3>
+      <div class="amr-table-wrap">
+        <table class="amr-table" data-source="gaps" data-row-key="id">
+          <thead><tr>
+            <th data-field="gap">Khoảng trống</th><th data-field="review_mentions">Số review nhắc tới</th>
+            <th data-field="evidence">Bằng chứng</th><th data-field="competitors">Đối thủ</th>
+            <th data-field="focal_has">{{FOCAL}} đã có</th><th data-field="action">Việc cần làm</th>
+          </tr></thead>
+          <tbody data-draw="gap-rows"></tbody>
+        </table>
+      </div>
+    </div>
+    <div class="amr-section" id="focal-roadmap">
+      <h3 class="amr-h3">Lộ trình 90 ngày</h3>
+      <div class="amr-chart" data-draw="gantt" data-source="gaps" style="min-height: 260px"></div>
+    </div>
+    <div class="amr-section" id="focal-risks">
+      <h3 class="amr-h3">Rủi ro cần cân nhắc</h3>
+      <ul class="amr-risks" data-read lang="vi"><!-- WRITE:RISKS 3-5 <li> --></ul>
+    </div>
+  </section>
+
+  <details class="amr-notes" id="method">
+    <summary>Cách làm và giới hạn</summary>
+    <ul>
+      <li>Nguồn: trang công khai của Google Play {{MARKET}}, đọc bằng thư viện google-play-scraper ngày {{CRAWL_DATE}}.</li>
+      <li>Review {{LANG_ADJ}}: lấy review mới nhất bằng ngôn ngữ của thị trường, lọc theo đặc trưng của ngôn ngữ đó. Review quá ngắn hoặc viết bằng tiếng Anh có thể bị bỏ sót.</li>
+      <li>Tính năng: đối chiếu từ khóa trong mô tả trên Google Play, rồi đọc lại bằng tay những tính năng tạo khác biệt.</li>
+      <li>Khen/chê: dựa vào số sao (4–5 là khen, 1–2 là chê). Chủ đề gắn bằng từ khóa. Trích dẫn đã bỏ tên người viết.</li>
+      <li>Lượt cài là số toàn cầu do Google công bố. Chỉ có Android.</li>
+    </ul>
+  </details>
+</div>
+
+<script>
+(function () {
+  const root = document.querySelector('.amr');
+  if (root) { root.style.setProperty('--amr-c0', dash.colors[0]); root.style.setProperty('--amr-c1', dash.colors[1]); }
+})();
+window.AMR_EFFORT_COLOR = (e) => (e === 1 ? dash.colors[0] : e === 2 ? (dash.colors[2] || dash.colors[1]) : dash.colors[1]);
+document.querySelectorAll('.amr-swatch[data-effort]').forEach((el) => { el.style.background = window.AMR_EFFORT_COLOR(+el.dataset.effort); });
+
+const AMR = window.AMR = {
+  fmt: d3.format(','),
+  short: (v) => d3.format('.2~s')(v),
+  colorOf: (a) => (a.built_locally === 'Yes' ? dash.colors[0] : dash.colors[1]),
+  has: (v) => v === 'yes' || v === 'partial',
+  winCols: (apps) => (dash.data('apps').columns || Object.keys(apps[0] || {})).filter((c) => c.startsWith('reviews_to_')).sort(),
+  settle(el, s) { if (s.status !== 'loading') el.classList.remove('dash-skeleton'); },
+  failed(el, s) {
+    if (s.status === 'error') { const p = document.createElement('p'); p.className = 'amr-error'; p.textContent = 'Không tải được dữ liệu cho phần này.'; el.replaceChildren(p); return true; }
+    if (s.status !== 'ok') { el.replaceChildren(); return true; }
+    return false;
+  },
+  tip(el) {
+    const t = document.createElement('div'); t.className = 'amr-tip'; t.hidden = true; el.appendChild(t);
+    return {
+      show(ev, lines) {
+        t.replaceChildren(...lines.map(([txt, cls]) => { const d = document.createElement('div'); if (cls) d.className = cls; d.textContent = txt; return d; }));
+        t.hidden = false;
+        const b = el.getBoundingClientRect();
+        let x = ev.clientX - b.left + 14, y = ev.clientY - b.top + 14;
+        if (x + t.offsetWidth > el.clientWidth) x = Math.max(0, ev.clientX - b.left - t.offsetWidth - 14);
+        if (y + t.offsetHeight > el.clientHeight) y = Math.max(0, ev.clientY - b.top - t.offsetHeight - 14);
+        t.style.left = x + 'px'; t.style.top = y + 'px';
+      },
+      hide() { t.hidden = true; },
+    };
+  },
+  hbar(el, rows, o) {
+    el.replaceChildren();
+    const W = el.clientWidth, rowH = o.rowH || 26;
+    const svg = d3.select(el).append('svg').attr('width', W).attr('role', 'img').attr('aria-label', o.aria);
+    const probe = svg.append('g'); let labW = 0, valW = 0;
+    rows.forEach((r) => { labW = Math.max(labW, probe.append('text').text(o.label(r)).node().getComputedTextLength()); valW = Math.max(valW, probe.append('text').text(o.text(r)).node().getComputedTextLength()); });
+    probe.remove();
+    const m = { top: 4, right: Math.ceil(valW) + 10, bottom: 4, left: Math.ceil(labW) + 12 };
+    const H = m.top + m.bottom + rows.length * rowH; svg.attr('height', H);
+    const x = d3.scaleLinear().domain([0, o.max || d3.max(rows, o.value) || 1]).range([m.left, Math.max(m.left + 40, W - m.right)]);
+    const y = d3.scaleBand().domain(rows.map((r, i) => i)).range([m.top, H - m.bottom]).padding(0.28);
+    const tip = AMR.tip(el);
+    const g = svg.selectAll('g.r').data(rows).join('g').attr('class', 'r');
+    g.append('text').attr('x', m.left - 8).attr('y', (r, i) => y(i) + y.bandwidth() / 2).attr('dy', '0.35em').attr('text-anchor', 'end').attr('class', 'amr-strong').text(o.label);
+    g.append('rect').attr('x', m.left).attr('y', (r, i) => y(i)).attr('height', y.bandwidth()).attr('width', (r) => Math.max(1, x(o.value(r)) - m.left)).attr('rx', 3).style('fill', o.color);
+    g.append('text').attr('x', (r) => x(o.value(r)) + 6).attr('y', (r, i) => y(i) + y.bandwidth() / 2).attr('dy', '0.35em').style('font-variant-numeric', 'tabular-nums').text(o.text);
+    g.append('rect').attr('x', 0).attr('width', W).attr('y', (r, i) => y(i) - 3).attr('height', y.bandwidth() + 6).style('fill', 'transparent')
+      .on('pointermove', (ev, r) => tip.show(ev, o.tip(r))).on('pointerleave', () => tip.hide());
+  },
+};
+
+// ---------- calcs
+dash.calc('totals', {
+  title: 'Market summary', description: 'Leader, its share of local reviews, and apps built by local companies.',
+  inputs: ['apps'],
+  fn: (apps) => {
+    const v = apps.map((a) => +a.local_reviews_30d).sort((p, q) => q - p);
+    const total = d3.sum(v);
+    const lead = apps.reduce((m, a) => (+a.local_reviews_30d > +m.local_reviews_30d ? a : m), apps[0]);
+    return [{ apps: apps.length, leader_app: lead.app, leader_reviews: +lead.local_reviews_30d, total_reviews: total,
+      leader_share_pct: Math.round((100 * +lead.local_reviews_30d) / total),
+      ratio_vs_second: v[1] ? Math.round((10 * v[0]) / v[1]) / 10 : null,
+      local_count: apps.filter((a) => a.built_locally === 'Yes').length }];
+  },
+});
+dash.calc('trend', {
+  title: '6-month change per app', description: 'Local reviews in the latest 30-day window vs the first window.',
+  inputs: ['apps'],
+  fn: (apps) => {
+    const cols = Object.keys(apps[0] || {}).filter((c) => c.startsWith('reviews_to_')).sort();
+    return apps.map((a) => { const first = +a[cols[0]], last = +a[cols[cols.length - 1]];
+      return { app: a.app, first, last, change_pct: first > 0 ? Math.round((100 * (last - first)) / first) : null }; });
+  },
+});
+dash.calc('coverage', {
+  title: 'Feature coverage', description: 'How many apps list each feature (yes) or part of it (partial).',
+  inputs: ['apps', 'features'],
+  fn: (apps, features) => features.map(({ feature }) => ({ feature,
+    yes: apps.filter((a) => a[feature] === 'yes').length, partial: apps.filter((a) => a[feature] === 'partial').length })),
+});
+dash.calc('featcount', {
+  title: 'Features vs local reviews', description: 'Per app: listed features (yes or partial) and local reviews in 30 days.',
+  inputs: ['apps', 'features'],
+  fn: (apps, features) => apps.map((a) => ({ app: a.app, package: a.package, built_locally: a.built_locally,
+    features: features.filter(({ feature }) => a[feature] === 'yes' || a[feature] === 'partial').length,
+    local_reviews_30d: +a.local_reviews_30d })),
+});
+dash.calc('review_totals', {
+  title: 'Review sentiment', description: 'All apps: local reviews in the period and share rated 4-5 and 1-2 stars.',
+  inputs: ['sentiment'],
+  fn: (sentiment) => { const n = d3.sum(sentiment, (a) => +a.reviews_period);
+    return [{ reviews: n, positive_pct: Math.round((100 * d3.sum(sentiment, (a) => +a.positive)) / n),
+      negative_pct: Math.round((1000 * d3.sum(sentiment, (a) => +a.negative)) / n) / 10 }]; },
+});
+dash.calc('focal_position', {
+  title: 'Focal app position', description: 'Rank of the focal app by local reviews in 30 days, with its installs.',
+  inputs: ['apps'],
+  fn: (apps) => { const s = apps.slice().sort((a, b) => +b.local_reviews_30d - +a.local_reviews_30d);
+    const i = s.findIndex((a) => a.is_focal === 'Yes'); if (i < 0) return [];
+    return [{ rank: i + 1, of: apps.length, local_reviews_30d: +s[i].local_reviews_30d, global_installs: +s[i].global_installs }]; },
+});
+
+// ---------- small text drawings
+const AMR_TEXT = [
+  ['leader-name', 'totals', 'leader_app', (v) => v], ['leader-share', 'totals', 'leader_share_pct', (v) => v + '%'],
+  ['n-apps', 'totals', 'apps', String], ['leader-ratio', 'totals', 'ratio_vs_second', (v) => (v == null ? '—' : String(v))],
+  ['local-count', 'totals', 'local_count', String],
+  ['rv-total', 'review_totals', 'reviews', (v) => AMR.fmt(v)], ['rv-pos', 'review_totals', 'positive_pct', (v) => v + '%'],
+  ['rv-neg', 'review_totals', 'negative_pct', (v) => v + '%'],
+  ['f-installs', 'focal_position', 'global_installs', (v) => AMR.short(v)], ['f-rev', 'focal_position', 'local_reviews_30d', String],
+  ['f-rank', 'focal_position', 'rank', String], ['f-of', 'focal_position', 'of', String],
+];
+AMR_TEXT.forEach(([name, src, field, f]) => dash.draw(name, (el) => {
+  const s = dash.data(src); AMR.settle(el, s);
+  el.textContent = s.status === 'ok' && s.data && s.data[0] ? f(s.data[0][field]) : '—';
+}));
+
+// ---------- ranking
+dash.draw('bars', (el) => {
+  const s = dash.data('apps'); AMR.settle(el, s); if (AMR.failed(el, s)) return;
+  const rows = s.data.slice().sort((a, b) => +b.local_reviews_30d - +a.local_reviews_30d);
+  AMR.hbar(el, rows, { label: (r) => r.app, value: (r) => +r.local_reviews_30d, text: (r) => AMR.fmt(+r.local_reviews_30d), color: AMR.colorOf,
+    aria: 'Số review theo ngôn ngữ thị trường trong 30 ngày của từng app',
+    tip: (r) => [[r.play_title, 'amr-strong'], [r.developer, 'amr-tip-muted'], [AMR.fmt(+r.local_reviews_30d) + ' review / 30 ngày'],
+      ['Lượt cài toàn cầu: ' + AMR.fmt(+r.global_installs)], ['Rating ' + (+r.rating).toFixed(1) + ' · Quảng cáo: ' + (r.ads === 'Yes' ? 'có' : 'không')]] });
+});
+
+// ---------- trend small multiples
+dash.draw('multiples', (el) => {
+  const s = dash.data('apps'), tr = dash.data('trend'); AMR.settle(el, s);
+  if (AMR.failed(el, s) || tr.status !== 'ok') return;
+  const cols = AMR.winCols(s.data), label = d3.utcFormat('%d/%m');
+  const top = s.data.slice().sort((a, b) => +b.local_reviews_30d - +a.local_reviews_30d).slice(0, 8);
+  const ch = new Map(tr.data.map((t) => [t.app, t]));
+  el.replaceChildren();
+  top.forEach((a) => {
+    const card = document.createElement('div'); card.className = 'amr-mini'; card._amr = a;
+    const name = document.createElement('div'); name.className = 'amr-mini-name'; name.textContent = a.app;
+    const row = document.createElement('div'); row.className = 'amr-mini-row';
+    const val = document.createElement('span'); val.className = 'amr-mini-val'; val.textContent = AMR.fmt(+a.local_reviews_30d);
+    val.dataset.source = 'apps'; val.dataset.field = 'local_reviews_30d'; val.dataset.where = 'package=' + encodeURIComponent(a.package);
+    const c = ch.get(a.app), pct = c ? c.change_pct : null;
+    const chg = document.createElement('span');
+    chg.className = pct == null ? 'amr-flat' : pct > 5 ? 'amr-up' : pct < -5 ? 'amr-down' : 'amr-flat';
+    chg.textContent = pct == null ? 'mới xuất hiện' : (pct > 0 ? '+' : '') + pct + '% so với 6 tháng trước';
+    chg.dataset.source = 'trend'; chg.dataset.field = 'change_pct'; chg.dataset.where = 'app=' + encodeURIComponent(a.app);
+    row.append(val, chg); card.append(name, row); el.appendChild(card);
+  });
+  el.querySelectorAll('.amr-mini').forEach((card) => {
+    const a = card._amr;
+    const pts = cols.map((c) => ({ d: new Date(c.slice(11) + 'T00:00:00Z'), v: +a[c] }));
+    const W = Math.max(120, card.clientWidth - 24), H = 70, m = { t: 8, r: 8, b: 16, l: 8 };
+    const x = d3.scaleUtc().domain(d3.extent(pts, (p) => p.d)).range([m.l, W - m.r]);
+    const y = d3.scaleLinear().domain([0, d3.max(pts, (p) => p.v) || 1]).nice().range([H - m.b, m.t]);
+    const svg = d3.select(card).append('svg').attr('width', W).attr('height', H).attr('role', 'img')
+      .attr('aria-label', a.app + ': review theo từng khoảng 30 ngày, ' + pts.map((p) => p.v).join(', '));
+    svg.append('line').attr('x1', m.l).attr('x2', W - m.r).attr('y1', y(0)).attr('y2', y(0)).style('stroke', 'var(--cds-chart-grid)');
+    const color = AMR.colorOf(a);
+    svg.append('path').datum(pts).attr('d', d3.line().x((p) => x(p.d)).y((p) => y(p.v))).style('fill', 'none').style('stroke', color).style('stroke-width', 2);
+    svg.selectAll('circle').data(pts).join('circle').attr('cx', (p) => x(p.d)).attr('cy', (p) => y(p.v)).attr('r', (p, i) => (i === pts.length - 1 ? 4 : 2.5))
+      .style('fill', color).style('stroke', 'var(--color-panel)').style('stroke-width', 1.5);
+    svg.append('text').attr('x', m.l).attr('y', H - 3).text(label(pts[0].d));
+    svg.append('text').attr('x', W - m.r).attr('y', H - 3).attr('text-anchor', 'end').text(label(pts[pts.length - 1].d));
+    const tip = AMR.tip(card);
+    svg.selectAll('rect.hit').data(pts).join('rect').attr('class', 'hit')
+      .attr('x', (p, i) => (i === 0 ? 0 : (x(pts[i - 1].d) + x(p.d)) / 2))
+      .attr('width', (p, i) => (i === pts.length - 1 ? W : (x(p.d) + x(pts[i + 1].d)) / 2) - (i === 0 ? 0 : (x(pts[i - 1].d) + x(p.d)) / 2))
+      .attr('y', 0).attr('height', H).style('fill', 'transparent')
+      .on('pointermove', (ev, p) => tip.show(ev, [[a.app, 'amr-strong'], ['30 ngày đến ' + label(p.d) + ': ' + AMR.fmt(p.v) + ' review']]))
+      .on('pointerleave', () => tip.hide());
+  });
+});
+
+// ---------- feature heatmap
+dash.draw('heatmap', (el) => {
+  const s = dash.data('apps'), cv = dash.data('coverage'), fl = dash.data('features'); AMR.settle(el, s);
+  if (AMR.failed(el, s) || cv.status !== 'ok' || fl.status !== 'ok') return;
+  const label = new Map(fl.data.map((f) => [f.feature, f.label || f.feature]));
+  const feats = cv.data.slice().sort((a, b) => (b.yes + b.partial * 0.5) - (a.yes + a.partial * 0.5)).map((c) => c.feature);
+  const cov = new Map(cv.data.map((c) => [c.feature, c]));
+  const apps = s.data.slice().sort((a, b) => +b.local_reviews_30d - +a.local_reviews_30d);
+  el.replaceChildren();
+  const svg = d3.select(el).append('svg').attr('role', 'img').attr('aria-label', 'Bản đồ tính năng: có, một phần hoặc không nhắc tới');
+  const probe = svg.append('g'); let labW = 0, colW = 0;
+  apps.forEach((a) => { labW = Math.max(labW, probe.append('text').text(a.app).node().getComputedTextLength()); });
+  feats.forEach((f) => { colW = Math.max(colW, probe.append('text').text(label.get(f)).node().getComputedTextLength()); });
+  probe.remove();
+  const left = Math.ceil(labW) + 12;
+  const cell = Math.max(18, Math.min(30, Math.floor((el.clientWidth - left - 40) / feats.length)));
+  const topM = Math.ceil(colW * Math.SQRT1_2) + 34;
+  svg.attr('width', left + feats.length * cell + Math.ceil(colW * Math.SQRT1_2) + 8).attr('height', topM + apps.length * cell + 4);
+  const tip = AMR.tip(el), hx = (i) => left + i * cell;
+  svg.selectAll('text.fh').data(feats).join('text').attr('class', 'fh').attr('transform', (f, i) => `translate(${hx(i) + cell / 2 + 3},${topM - 22}) rotate(-45)`).text((f) => label.get(f));
+  svg.selectAll('text.fc').data(feats).join('text').attr('class', 'fc').attr('x', (f, i) => hx(i) + cell / 2).attr('y', topM - 6).attr('text-anchor', 'middle')
+    .style('font-variant-numeric', 'tabular-nums').text((f) => cov.get(f).yes + cov.get(f).partial);
+  svg.append('text').attr('x', left - 8).attr('y', topM - 6).attr('text-anchor', 'end').text('Số app có →');
+  apps.forEach((a, r) => {
+    const yy = topM + r * cell;
+    svg.append('text').attr('x', left - 8).attr('y', yy + cell / 2).attr('dy', '0.35em').attr('text-anchor', 'end').attr('class', 'amr-strong').text(a.app);
+    svg.selectAll(null).data(feats).join('rect').attr('x', (f, i) => hx(i) + 1).attr('y', yy + 1).attr('width', cell - 2).attr('height', cell - 2).attr('rx', 3)
+      .style('fill', (f) => (AMR.has(a[f]) ? dash.colors[0] : 'transparent')).style('fill-opacity', (f) => (a[f] === 'partial' ? 0.38 : 1))
+      .style('stroke', (f) => (AMR.has(a[f]) ? 'none' : 'var(--color-border-line)'))
+      .on('pointermove', (ev, f) => tip.show(ev, [[a.app, 'amr-strong'], [label.get(f)],
+        [a[f] === 'yes' ? 'Có (ghi trong mô tả)' : a[f] === 'partial' ? 'Một phần / chỉ bản trả phí' : 'Không nhắc tới trong mô tả', 'amr-tip-muted']]))
+      .on('pointerleave', () => tip.hide());
+  });
+});
+
+// ---------- scatter
+dash.draw('scatter', (el) => {
+  const s = dash.data('featcount'); AMR.settle(el, s); if (AMR.failed(el, s)) return;
+  const rows = s.data, nf = (dash.data('features').data || []).length || 25;
+  el.replaceChildren();
+  const W = el.clientWidth, H = 360, m = { t: 12, r: 24, b: 40, l: 48 };
+  const svg = d3.select(el).append('svg').attr('width', W).attr('height', H).attr('role', 'img').attr('aria-label', 'Số tính năng và số review của từng app');
+  const x = d3.scaleLinear().domain([0, nf]).range([m.l, W - m.r]);
+  const ymax = Math.max(10, d3.max(rows, (r) => r.local_reviews_30d) * 1.3);
+  const y = d3.scaleLog().domain([1, ymax]).range([H - m.b, m.t]);
+  const yt = [1, 3, 10, 30, 100, 300, 1000, 3000].filter((t) => t <= ymax);
+  svg.append('g').attr('class', 'amr-grid').attr('transform', `translate(${m.l},0)`).call(d3.axisLeft(y).tickValues(yt).tickSize(-(W - m.l - m.r)).tickFormat('')).call((g) => g.select('.domain').remove());
+  svg.append('g').attr('transform', `translate(0,${H - m.b})`).call(d3.axisBottom(x).ticks(W < 420 ? 5 : 10));
+  svg.append('g').attr('transform', `translate(${m.l},0)`).call(d3.axisLeft(y).tickValues(yt).tickFormat(d3.format('d')));
+  svg.append('text').attr('x', W - m.r).attr('y', H - 6).attr('text-anchor', 'end').text('Số tính năng (trong ' + nf + ')');
+  svg.append('text').attr('x', 4).attr('y', m.t - 2).text('Review / 30 ngày');
+  const named = new Set(rows.slice().sort((a, b) => b.local_reviews_30d - a.local_reviews_30d).slice(0, 6).map((r) => r.app));
+  (dash.data('apps').data || []).filter((a) => a.is_focal === 'Yes').forEach((a) => named.add(a.app));
+  const tip = AMR.tip(el);
+  const dots = svg.selectAll('g.d').data(rows).join('g').attr('class', 'd').attr('transform', (r) => `translate(${x(r.features)},${y(Math.max(1, r.local_reviews_30d))})`);
+  dots.append('circle').attr('r', 6).style('fill', AMR.colorOf).style('stroke', 'var(--color-bg)').style('stroke-width', 2);
+  dots.filter((r) => named.has(r.app)).append('text').attr('x', 9).attr('dy', '0.35em').attr('class', 'amr-strong').text((r) => r.app);
+  dots.append('circle').attr('r', 14).style('fill', 'transparent')
+    .on('pointermove', (ev, r) => tip.show(ev, [[r.app, 'amr-strong'], [r.features + ' tính năng'], [AMR.fmt(r.local_reviews_30d) + ' review / 30 ngày']]))
+    .on('pointerleave', () => tip.hide());
+});
+
+// ---------- review sections
+['complaint', 'praise'].forEach((kind) => dash.draw(kind + '-bars', (el) => {
+  const s = dash.data('themes'); AMR.settle(el, s); if (AMR.failed(el, s)) return;
+  const field = kind === 'complaint' ? 'critical_reviews' : 'positive_reviews';
+  const rows = s.data.filter((t) => t.kind === kind).sort((a, b) => +b[field] - +a[field]);
+  AMR.hbar(el, rows, { label: (r) => r.theme, value: (r) => +r[field], text: (r) => AMR.fmt(+r[field]), color: kind === 'complaint' ? dash.colors[1] : dash.colors[0],
+    aria: kind === 'complaint' ? 'Chủ đề bị chê' : 'Chủ đề được khen',
+    tip: (r) => [[r.theme, 'amr-strong'], [AMR.fmt(+r[field]) + ' review'], ['Trong đó ' + AMR.fmt(+r.negative_reviews) + ' review 1–2 sao', 'amr-tip-muted']] });
+}));
+dash.draw('neg-bars', (el) => {
+  const s = dash.data('sentiment'); AMR.settle(el, s); if (AMR.failed(el, s)) return;
+  const rows = s.data.filter((r) => +r.reviews_period > 0).sort((a, b) => +b.negative_pct - +a.negative_pct || +b.reviews_period - +a.reviews_period);
+  AMR.hbar(el, rows, { label: (r) => r.app, value: (r) => +r.negative_pct, max: Math.max(5, d3.max(rows, (r) => +r.negative_pct)),
+    text: (r) => (+r.negative_pct).toFixed(0) + '% · ' + AMR.fmt(+r.reviews_period) + ' review', color: dash.colors[1],
+    aria: 'Tỷ lệ review 1–2 sao của từng app',
+    tip: (r) => [[r.app, 'amr-strong'], [AMR.fmt(+r.negative) + ' review 1–2 sao / ' + AMR.fmt(+r.reviews_period)], ['Điểm trung bình ' + (+r.avg_stars).toFixed(2)],
+      ['Review ≤20 ký tự: ' + r.short_review_pct + '% · trùng lặp: ' + r.duplicate_text_pct + '%', 'amr-tip-muted'],
+      [r.top_complaint ? 'Chê nhiều nhất: ' + r.top_complaint : 'Không có chủ đề chê nổi bật', 'amr-tip-muted']] });
+});
+dash.draw('quotes', (el) => {
+  const s = dash.data('quotes'); AMR.settle(el, s); if (AMR.failed(el, s)) return;
+  const order = { neg: 0, wish: 1, pos: 2 }, kindLabel = { neg: 'Chê', wish: 'Góp ý', pos: 'Khen' }, fd = d3.utcFormat('%d/%m/%Y');
+  el.replaceChildren(...s.data.slice().sort((a, b) => order[a.kind] - order[b.kind]).map((q) => {
+    const card = document.createElement('figure'); card.className = 'amr-quote';
+    card.dataset.source = 'quotes'; card.dataset.where = 'id=' + encodeURIComponent(q.id);
+    const head = document.createElement('div'); head.className = 'amr-quote-head';
+    const app = document.createElement('span'); app.className = 'amr-quote-app'; app.textContent = q.app;
+    const meta = document.createElement('span'); meta.textContent = '★'.repeat(+q.stars) + ' · ' + fd(new Date(q.date + 'T00:00:00Z'));
+    head.append(app, meta);
+    const main = document.createElement('p'); main.className = 'amr-quote-main'; main.textContent = q.text_report || q.text_local;
+    card.append(head, main);
+    if (q.text_report && q.text_local && q.text_report !== q.text_local) {
+      const orig = document.createElement('p'); orig.className = 'amr-quote-orig'; orig.textContent = '“' + q.text_local + '”'; card.append(orig);
+    }
+    const th = document.createElement('span'); th.className = 'amr-label'; th.textContent = kindLabel[q.kind] + ' · ' + q.theme; card.append(th);
+    return card;
+  }));
+});
+
+// ---------- focal app
+[['cmp-installs', 'apps', 'global_installs', AMR.short], ['cmp-reviews', 'apps', 'local_reviews_30d', AMR.fmt], ['cmp-features', 'featcount', 'features', String]]
+  .forEach(([name, src, field, f]) => dash.draw(name, (el) => {
+    const s = dash.data(src), a = dash.data('apps'); AMR.settle(el, s);
+    if (AMR.failed(el, s) || a.status !== 'ok') return;
+    const focal = a.data.find((r) => r.is_focal === 'Yes');
+    const peers = new Set(a.data.slice().sort((p, q) => +q.local_reviews_30d - +p.local_reviews_30d).slice(0, 5).map((r) => r.package));
+    if (focal) peers.add(focal.package);
+    const rows = s.data.filter((r) => peers.has(r.package)).sort((p, q) => +q[field] - +p[field]);
+    AMR.hbar(el, rows, { rowH: 24, label: (r) => r.app, value: (r) => +r[field], text: (r) => f(+r[field]),
+      color: (r) => (focal && r.package === focal.package ? dash.colors[0] : 'var(--cds-chart-muted)'), aria: 'So sánh app trọng tâm với các app dẫn đầu',
+      tip: (r) => [[r.app, 'amr-strong'], [f(+r[field])]] });
+  }));
+dash.draw('matrix', (el) => {
+  const s = dash.data('gaps'); AMR.settle(el, s); if (AMR.failed(el, s)) return;
+  const lv = ['Thấp', 'Trung bình', 'Cao'], cells = [];
+  const ax = (t, c) => { const d = document.createElement('div'); d.className = 'amr-axis' + (c ? ' ' + c : ''); d.textContent = t; return d; };
+  cells.push(ax('Thị trường cần ↑ / sẵn sàng →')); lv.forEach((l) => cells.push(ax(l)));
+  [3, 2, 1].forEach((dem) => {
+    cells.push(ax(lv[dem - 1], 'amr-ylab'));
+    [1, 2, 3].forEach((fit) => {
+      const c = document.createElement('div'); c.className = 'amr-cell' + (dem >= 2 && fit >= 2 && dem + fit >= 5 ? ' amr-hot' : '');
+      s.data.filter((g) => +g.demand === dem && +g.fit === fit).forEach((g) => {
+        const chip = document.createElement('span'); chip.className = 'amr-chip'; chip.title = g.gap;
+        chip.dataset.source = 'gaps'; chip.dataset.field = 'short'; chip.dataset.where = 'id=' + g.id;
+        const dot = document.createElement('i'); dot.style.background = window.AMR_EFFORT_COLOR(+g.effort);
+        const t = document.createElement('span'); t.textContent = g.short; chip.append(dot, t); c.appendChild(chip);
+      });
+      cells.push(c);
+    });
+  });
+  el.replaceChildren(...cells);
+});
+dash.draw('gap-rows', (el) => {
+  const s = dash.data('gaps'); if (s.status !== 'ok') { el.replaceChildren(); return; }
+  const rows = s.data.slice().sort((a, b) => (+b.demand * +b.fit / +b.effort) - (+a.demand * +a.fit / +a.effort));
+  el.replaceChildren(...rows.map((g) => {
+    const tr = document.createElement('tr'); tr.dataset.key = g.id;
+    ['gap', 'review_mentions', 'evidence', 'competitors', 'focal_has', 'action'].forEach((f) => {
+      const td = document.createElement('td');
+      td.textContent = f === 'review_mentions' ? (g[f] == null || g[f] === '' ? '–' : AMR.fmt(+g[f])) : g[f];
+      if (f === 'gap') td.style.fontWeight = '600';
+      tr.appendChild(td);
+    });
+    return tr;
+  }));
+});
+dash.draw('gantt', (el) => {
+  const s = dash.data('gaps'); AMR.settle(el, s); if (AMR.failed(el, s)) return;
+  const rows = s.data.slice().sort((a, b) => +a.week_start - +b.week_start || +a.week_end - +b.week_end);
+  el.replaceChildren();
+  const W = el.clientWidth, rowH = 30;
+  const svg = d3.select(el).append('svg').attr('width', W).attr('role', 'img').attr('aria-label', 'Lộ trình 12 tuần');
+  const probe = svg.append('g'); let labW = 0;
+  rows.forEach((r) => { labW = Math.max(labW, probe.append('text').text(r.short).node().getComputedTextLength()); }); probe.remove();
+  const m = { top: 24, right: 12, bottom: 6, left: Math.ceil(labW) + 12 }, H = m.top + m.bottom + rows.length * rowH;
+  svg.attr('height', H);
+  const x = d3.scaleLinear().domain([1, 13]).range([m.left, W - m.right]);
+  const y = d3.scaleBand().domain(rows.map((r) => r.id)).range([m.top, H - m.bottom]).padding(0.3);
+  const ticks = W < 480 ? [1, 4, 8, 12] : d3.range(1, 13);
+  svg.append('g').attr('class', 'amr-grid').selectAll('line').data(ticks).join('line').attr('x1', (t) => x(t)).attr('x2', (t) => x(t)).attr('y1', m.top - 4).attr('y2', H - m.bottom);
+  svg.selectAll('text.wk').data(ticks).join('text').attr('class', 'wk').attr('x', (t) => x(t) + 2).attr('y', 12).text((t) => 'T' + t);
+  const tip = AMR.tip(el);
+  const g = svg.selectAll('g.r').data(rows).join('g').attr('class', 'r');
+  g.append('text').attr('x', m.left - 8).attr('y', (r) => y(r.id) + y.bandwidth() / 2).attr('dy', '0.35em').attr('text-anchor', 'end').attr('class', 'amr-strong').text((r) => r.short);
+  g.append('rect').attr('x', (r) => x(+r.week_start)).attr('width', (r) => Math.max(4, x(+r.week_end + 1) - x(+r.week_start) - 2))
+    .attr('y', (r) => y(r.id)).attr('height', y.bandwidth()).attr('rx', 4).style('fill', (r) => window.AMR_EFFORT_COLOR(+r.effort));
+  g.append('rect').attr('x', 0).attr('width', W).attr('y', (r) => y(r.id) - 4).attr('height', y.bandwidth() + 8).style('fill', 'transparent')
+    .on('pointermove', (ev, r) => tip.show(ev, [[r.gap, 'amr-strong'], ['Tuần ' + r.week_start + '–' + r.week_end], [r.action, 'amr-tip-muted']]))
+    .on('pointerleave', () => tip.hide());
+});
+</script>
