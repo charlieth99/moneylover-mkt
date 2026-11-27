@@ -63,8 +63,8 @@ Then write `quotes.json` and `gaps.json` yourself (schemas in `references/data-s
 
 ### 6. Build the dashboard
 1. `Artifact` `action: "quickstart"`, `intent: "other"` → create from the Data type with a short title and `auto_open: "after_first_write"`. Read its `design-defaults.md` and `one-writer.md` once.
-2. Copy `assets/dashboard_page.html`, replace every `{{PLACEHOLDER}}` and `<!-- WRITE:… -->` block (findings, verdict, summary, risks), delete the top instruction comment. Without a focal app, delete `<div id="focal-position">` and keep the gap matrix, table, roadmap and risks with `{{GAPS_TITLE}}` = "Khoảng trống cho một app mới". Keep numbers out of hand-written prose unless they are marked elements.
-3. Upload each JSON with `Artifact` publish `asset: true` (one JSON per call), then one `ArtifactData` batch: `dash/meta` (`lang`), `datasets/<id>` for apps, features, sentiment, themes, quotes, gaps (`kind: "file"`, `format: "json"`, `updated`, `fixed: true`), and `files/index.html` as `{text}`.
+2. Write a `values.json` (placeholders, the WRITE blocks you authored: findings, verdict, summary, risks; optional exact `replace` pairs for market-specific wording) and run `python scripts/fill_page.py --values values.json --out <DIR>/dash [--no-focal]`, then `node --check <DIR>/dash/page_script.js`. Without a focal app use `--no-focal` and set `GAPS_TITLE` to e.g. "Khoảng trống cho một app mới", `FIT_LABEL` "đối thủ còn bỏ trống", `HAS_LABEL` "Ai đang làm tốt nhất". Keep numbers out of hand-written prose unless they are marked elements.
+3. Upload each JSON with `Artifact` publish `asset: true` (one JSON per call), then one `ArtifactData` batch: `dash/meta` (`lang`), `datasets/<id>` for apps, features, sentiment, themes, quotes, gaps (`kind: "file"`, `format: "json"`, `updated`, `fixed: true`), and `files/index.html` with `file_path` = `<DIR>/dash/files_index.json`.
 4. Read `data/users/me/check`, `runs`, and `page` (save `page` to a file and grep the text). Fix anything `failed` or any mark that disagrees. Syntax-check the page's script with `node --check` before uploading.
 
 ### 7. Hand over (in the user's language)

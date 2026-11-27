@@ -11,7 +11,7 @@
     {{FIT_LABEL}}        matrix x-axis, e.g. "Money Lover sẵn sàng" or "đối thủ còn bỏ trống"
     {{HAS_LABEL}}        gap-table column, e.g. "Money Lover đã có" or "Ai đang làm tốt nhất"
     WRITE:... comments   blocks of findings you write from the data (keep numbers out of prose, or mark them)
-  No focal app: delete <div id="focal-position"> (verdict + comparison) and keep the gap matrix, table, roadmap and risks.
+  No focal app: delete from <div id="focal-position"> to its end marker (verdict + comparison) and keep the gap matrix, table, roadmap and risks.
   Datasets expected: apps, features, sentiment, themes, quotes, gaps (see SKILL.md for columns).
 -->
 <style>
@@ -174,7 +174,7 @@
         <div><span class="amr-label">Số tính năng</span><div class="amr-chart" data-draw="cmp-features" data-source="featcount" style="min-height: 150px"></div></div>
       </div>
     </div>
-    </div>
+    </div><!-- /focal-position -->
     <div class="amr-section" id="focal-matrix" data-fit="{{FIT_LABEL}}">
       <h3 class="amr-h3">Ma trận khoảng trống: thị trường cần × {{FIT_LABEL}}</h3>
       <p class="amr-sub">Ô viền đậm là phần nên làm ngay. Màu chấm là công sức. Điểm là đánh giá của Claude dựa trên review và bản đồ tính năng, không phải số đo.</p>
