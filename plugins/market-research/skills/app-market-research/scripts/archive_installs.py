@@ -2,6 +2,10 @@
 of real downloads can be shown per app.
 
   python archive_installs.py --apps <apps.json with appId[, app]> --months 12 --out archive_installs.json
+  python archive_installs.py --apps <apps.json> --from-raw archive_installs_raw.json --out archive_installs.json
+
+The second form takes the points collected in a browser with assets/archive_console_snippet.js (for cloud
+sandboxes that can't reach web.archive.org) and computes the same monthly downloads.
 
 For each app and month it asks the Wayback CDX API for a 200 snapshot of the Play listing, takes the
 one closest to the month's end, and reads the exact install count (realInstalls) embedded in the page.
@@ -46,13 +50,42 @@ def real_installs(ts, original):
     return int(m.group(3)) if m else None
 
 
+def downloads(points):
+    """points: [{month, snapshot, installs}] in month order -> rows with downloads_30d (None where unknown)."""
+    rows = []
+    for prev, cur in zip(points, points[1:]):
+        dl = None
+        if prev["installs"] is not None and cur["installs"] is not None:
+            d0 = dt.datetime.strptime(prev["snapshot"][:8], "%Y%m%d"); d1 = dt.datetime.strptime(cur["snapshot"][:8], "%Y%m%d")
+            dl = round((cur["installs"] - prev["installs"]) * 30 / max((d1 - d0).days, 1))
+        rows.append({"month": cur["month"], "installs_month_end": cur["installs"], "snapshot": cur["snapshot"], "downloads_30d": dl})
+    return rows
+
+
+def from_raw(apps, raw, out_path):
+    names = {x["appId"]: x.get("app", x["appId"]) for x in apps}
+    out = []
+    for pkg in names:
+        pts = sorted((r for r in raw if r["package"] == pkg), key=lambda r: r["month"])
+        for r in pts:
+            r["month"] = r["month"][:4] + "-" + r["month"][-2:] if "-" not in r["month"] else r["month"]
+        for row in downloads(pts):
+            out.append({"app": names[pkg], "package": pkg, **row})
+    json.dump(out, open(out_path, "w"), ensure_ascii=False, indent=0)
+    have = sum(r["downloads_30d"] is not None for r in out)
+    print(f"{have}/{len(out)} app-months with real downloads -> {out_path}")
+
+
 def main():
     p = argparse.ArgumentParser()
     p.add_argument("--apps", required=True)
     p.add_argument("--months", type=int, default=12)
     p.add_argument("--out", required=True)
+    p.add_argument("--from-raw", help="points collected by assets/archive_console_snippet.js")
     a = p.parse_args()
     apps = json.load(open(a.apps))
+    if a.from_raw:
+        return from_raw(apps, json.load(open(a.from_raw)), a.out)
     today = dt.date.today().replace(day=1)
     months = []
     for k in range(a.months, -1, -1):  # one extra month so the first month has a starting point
