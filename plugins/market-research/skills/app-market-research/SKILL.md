@@ -74,8 +74,8 @@ Lead with the answer: the 3-5 things the data says, with numbers. Then: what's o
 
 What exists, in order of trust (say which one a chart uses):
 1. **Paid panels** (AppMagic, Sensor Tower, data.ai): per-country monthly downloads with history. Use when the user has an account.
-2. **Archived Play pages** (web.archive.org snapshots of `play.google.com/store/apps/details?id=…`): each snapshot carries the exact `realInstalls` of that day, so month-to-month differences are real global downloads, for apps archived often enough. Needs network access to web.archive.org; in cloud sandboxes it is often blocked by the egress proxy — if so, say so and stop, don't route around it.
-3. **Daily snapshots from now on** (`scripts/snapshot_installs.py` on a schedule): exact global downloads, but history starts today.
+2. **Archived Play pages**: `scripts/archive_installs.py --apps apps.json --months 12 --out archive_installs.json` reads one Wayback snapshot of each listing per month and the exact `realInstalls` in it; month-to-month differences are real global downloads (null where no snapshot exists). Needs network access to web.archive.org; in cloud sandboxes it is often blocked by the egress proxy — if so, say so and stop, don't route around it (running Claude Code on the user's own computer is the usual way out). Verify on one app first.
+3. **Daily snapshots from now on** (`scripts/snapshot_installs.py` on a schedule, then `scripts/installs_to_dashboard.py` for the page): exact global downloads, but history starts today. Play refreshes each app's counter every few days, so an unchanged count means "not refreshed yet", not zero.
 4. **12-month local review trend** (always available): `crawl.py --months 12 --max-pages 40`, then `analyze.py` gives 12 windows per app; set `{{MONTHS}}` to 12. This shows local *usage momentum*, not downloads — label it that way on the page.
 
 ## Extending
