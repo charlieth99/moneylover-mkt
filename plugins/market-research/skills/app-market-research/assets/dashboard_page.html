@@ -5,7 +5,7 @@
     {{TITLE}}            page title, e.g. "Thị trường app quản lý chi tiêu ở Việt Nam"
     {{MARKET}}           e.g. "Việt Nam"            {{LANG_ADJ}} e.g. "tiếng Việt"
     {{CATEGORY}}         e.g. "quản lý chi tiêu"    {{CRAWL_DATE}} e.g. "27/11/2026"
-    {{WINDOW}}           e.g. "28/10–27/11/2026"    {{FOCAL}} focal app short name, e.g. "Money Lover"
+    {{WINDOW}}           e.g. "28/10–27/11/2026"    {{MONTHS}} number of 30-day windows, e.g. "6" or "12"    {{FOCAL}} focal app short name, e.g. "Money Lover"
     {{LOCAL_DEV}}        e.g. "Công ty Việt Nam"    {{FOREIGN_DEV}} e.g. "Công ty nước ngoài"
     {{GAPS_TITLE}}       e.g. "Cơ hội cho Money Lover ở Việt Nam" or "Khoảng trống cho một app mới"
     {{FIT_LABEL}}        matrix x-axis, e.g. "Money Lover sẵn sàng" or "đối thủ còn bỏ trống"
@@ -102,7 +102,7 @@
   </section>
 
   <section class="amr-section" id="trend">
-    <h2 class="amr-h2">Xu hướng 6 tháng của 8 app dẫn đầu</h2>
+    <h2 class="amr-h2">Xu hướng {{MONTHS}} tháng của 8 app dẫn đầu</h2>
     <p class="amr-sub">Mỗi điểm là số review {{LANG_ADJ}} trong một khoảng 30 ngày. Phần trăm so sánh khoảng gần nhất với khoảng đầu tiên có dữ liệu. Với app quá nhiều review, mẫu thu thập không phủ hết 6 tháng nên chỉ vẽ những tháng có đủ dữ liệu.</p>
     <div class="amr-multiples" data-draw="multiples" data-source="apps trend"></div>
   </section>
@@ -365,7 +365,7 @@ dash.draw('multiples', (el) => {
     const c = ch.get(a.app), pct = c ? c.change_pct : null;
     const chg = document.createElement('span');
     chg.className = pct == null ? 'amr-flat' : pct > 5 ? 'amr-up' : pct < -5 ? 'amr-down' : 'amr-flat';
-    chg.textContent = pct == null ? 'mới xuất hiện' : (pct > 0 ? '+' : '') + pct + '% so với 6 tháng trước';
+    chg.textContent = pct == null ? 'mới xuất hiện' : (pct > 0 ? '+' : '') + pct + '% so với khoảng đầu tiên';
     chg.dataset.source = 'trend'; chg.dataset.field = 'change_pct'; chg.dataset.where = 'app=' + encodeURIComponent(a.app);
     row.append(val, chg); card.append(name, row); el.appendChild(card);
   });
