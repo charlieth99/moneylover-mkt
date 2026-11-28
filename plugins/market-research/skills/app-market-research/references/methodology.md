@@ -25,6 +25,8 @@
 - **Keyword coverage** decides what's in the list. Check that known leaders are present; add `--extra-apps` for the focal app and anything the user names.
 - **Cloud sandboxes** often block the App Store, AppTweak and Similarweb. Say what was blocked; don't fill gaps from memory.
 
+- **Changing the crawl changes the counts.** The first Indonesia report also counted Indonesian-written reviews found under the English feed; the skill reads only the local feed, so its monthly numbers run a little lower. Don't mix the two in one chart without saying so.
+
 ## Honesty rules the user asked for
 - Say where every number comes from. Separate data from judgment on the page and in chat.
 - Don't call reviews downloads. Don't call global installs local.
